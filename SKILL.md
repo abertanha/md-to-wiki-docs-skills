@@ -68,7 +68,44 @@ Use the `Question` tool for all choices. Free-form questions should be asked as 
 
 ---
 
-### 1a. Welcome and set context
+### 1a. Version check — is the skill up to date?
+
+Before proceeding, check if the skill itself is outdated. The skill may be installed as a git clone (from GitHub) or as a direct copy.
+
+```bash
+# Check if this is a git repo
+SKILL_DIR=$(dirname "$(find ~/.config/opencode/skills/md-to-wiki -name SKILL.md 2>/dev/null | head -1)")
+if [ -z "$SKILL_DIR" ]; then
+  SKILL_DIR=$(dirname "$(find .opencode/skills/md-to-wiki -name SKILL.md 2>/dev/null | head -1)")
+fi
+if [ -n "$SKILL_DIR" ] && [ -d "$SKILL_DIR/.git" ]; then
+  cd "$SKILL_DIR"
+  git fetch origin --quiet 2>/dev/null
+  BEHIND=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo 0)
+  LOCAL=$(git rev-parse --short HEAD 2>/dev/null)
+  REMOTE=$(git rev-parse --short origin/main 2>/dev/null)
+  if [ "$BEHIND" -gt 0 ] 2>/dev/null; then
+    echo "Skill is $BEHIND commit(s) behind. Local: $LOCAL | Remote: $REMOTE"
+    OUTDATED=true
+  else
+    echo "Skill is up to date ($LOCAL)."
+    OUTDATED=false
+  fi
+else
+  OUTDATED=false
+fi
+```
+
+If `OUTDATED=true`, ask the user:
+
+> **This skill is $BEHIND commit(s) behind the latest version. Update now?**
+
+- If yes: `cd "$SKILL_DIR" && git pull`
+- If no: proceed with the current version
+
+---
+
+### 1b. Welcome and set context
 
 Start with a brief summary of what the skill can do, then ask the opening question:
 
@@ -85,7 +122,7 @@ Let's start with a quick onboarding so I understand exactly what you need.
 
 ---
 
-### 1b. Goals — what should the documentation achieve
+### 1c. Goals — what should the documentation achieve
 
 Ask:
 
@@ -109,7 +146,7 @@ Also ask if there are existing docs they want to replace or complement.
 
 ---
 
-### 1c. Scope and context — what does the documentation cover
+### 1d. Scope and context — what does the documentation cover
 
 Ask:
 
@@ -130,7 +167,7 @@ Keep the user focused — don't let scope creep. If they keep adding, ask:
 
 ---
 
-### 1d. Source selection — which markdown files to include
+### 1e. Source selection — which markdown files to include
 
 Ask:
 
@@ -184,7 +221,7 @@ Check each file exists. If not, ask for correction or suggest alternatives by sc
 
 ---
 
-### 1e. Ambiguity resolution checklist
+### 1f. Ambiguity resolution checklist
 
 Before moving on, verify:
 
@@ -203,7 +240,7 @@ If any are still fuzzy, ask a targeted follow-up. Do NOT proceed until all check
 
 ---
 
-### 1f. Summarize back to the user
+### 1g. Summarize back to the user
 
 After the interview, present a concise summary:
 
