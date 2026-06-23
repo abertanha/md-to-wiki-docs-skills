@@ -100,7 +100,7 @@ If `OUTDATED=true`, ask the user:
 
 > **This skill is $BEHIND commit(s) behind the latest version. Update now?**
 
-- If yes: `cd "$SKILL_DIR" && git pull`
+- If yes: `cd "$SKILL_DIR" && git pull`, then inform the user: **"The skill has been updated. Please restart the agent/session for the changes to take effect."** Stop and wait for the user to restart before proceeding.
 - If no: proceed with the current version
 
 ---
