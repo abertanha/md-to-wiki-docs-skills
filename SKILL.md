@@ -60,6 +60,44 @@ Supported Mermaid diagram types for wikis:
 
 ---
 
+## Skill Set Structure
+
+This skill comes with companion scripts and subagents to handle deterministic tasks. Use them instead of generating commands from scratch:
+
+```
+md-to-wiki/
+├── SKILL.md              ← this file (orchestrator)
+├── scripts/
+│   ├── discover-sources.sh   # scan .specs/ tree
+│   ├── discover-sources.ps1  # (PowerShell version)
+│   ├── fetch-issues.sh       # gh + curl with caching
+│   ├── fetch-issues.ps1      # (PowerShell version)
+│   ├── generate-mkdocs.sh    # auto-generate mkdocs.yml
+│   ├── generate-mkdocs.ps1   # (PowerShell version)
+│   ├── generate-index.sh     # build landing page
+│   ├── generate-index.ps1    # (PowerShell version)
+│   ├── to-pdf.sh             # pandoc + weasyprint
+│   ├── to-pdf.ps1            # (PowerShell version)
+│   ├── to-dokuwiki.sh        # pandoc → DokuWiki
+│   └── to-dokuwiki.ps1       # (PowerShell version)
+├── templates/
+│   ├── index.md              # landing page template
+│   └── swagger-ui.html       # Swagger UI wrapper
+└── agents/
+    ├── swagger-builder.md    # subagent for OpenAPI generation
+    └── pdf-builder.md        # subagent for PDF generation
+```
+
+**Script path:** `SKILL_DIR = $(dirname "$(find ~/.config/opencode/skills/md-to-wiki -name SKILL.md | head -1)")`
+
+**OS detection:** The OS is detected once in the version check step (1a). This sets `$SCRIPT_EXT` (`.sh` or `.ps1`) and `$SCRIPT_RUNNER` (empty on Unix, `powershell -File` on Windows). All script calls use these variables.
+
+**Subagent delegation:** For Swagger and PDF formats, delegate execution to the subagent using the Task tool with the agent's markdown file as the prompt.
+
+**Subagent delegation:** For Swagger and PDF formats, delegate execution to the subagent using the Task tool with the agent's markdown file as the prompt.
+
+---
+
 ## Step 1 — Onboarding Interview
 
 Before touching any files, interview the user to build a clear specification of what they need. This eliminates ambiguity and ensures the output matches their real intent.
@@ -94,6 +132,30 @@ if [ -n "$SKILL_DIR" ] && [ -d "$SKILL_DIR/.git" ]; then
 else
   OUTDATED=false
 fi
+```
+
+**After the version check, detect the OS once** — all subsequent script calls reuse these variables:
+
+```bash
+case "$(uname -s 2>/dev/null)" in
+  Linux|Darwin)
+    OS_TYPE="unix"; SCRIPT_EXT=".sh"; SCRIPT_RUNNER=""
+    ;;
+  MINGW*|MSYS*|CYGWIN*)
+    # Git Bash on Windows — can run .sh natively
+    OS_TYPE="windows"; SCRIPT_EXT=".sh"; SCRIPT_RUNNER=""
+    ;;
+  *)
+    # Pure PowerShell (no bash) — use .ps1 with powershell runner
+    OS_TYPE="windows"; SCRIPT_EXT=".ps1"; SCRIPT_RUNNER="powershell -File"
+    ;;
+esac
+```
+
+Usage later in the flow:
+```bash
+# Instead of duplicating OS checks, just use the variables:
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/<name>$SCRIPT_EXT" <args>
 ```
 
 If `OUTDATED=true`, ask the user:
@@ -272,53 +334,27 @@ If not detectable, ask the user for the `owner/repo` slug.
 
 #### 1f-v. Fetch issues/PRs (try gh → fallback curl)
 
-For each confirmed reference:
+Use the companion script instead of writing bash from scratch:
 
 ```bash
-fetch_item() {
-  local owner="$1" repo="$2" num="$3"
-  local cache_file=".specs/issues/cache/${num}.json"
-  mkdir -p .specs/issues/cache
+SKILL_DIR=$(dirname "$(find ~/.config/opencode/skills/md-to-wiki -name SKILL.md | head -1)")
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/fetch-issues$SCRIPT_EXT" "$OWNER/$REPO" <num1> <num2> ...
+```
 
-  if [ -f "$cache_file" ]; then
-    echo "  $num: using cached data"
-    return 0
-  fi
+The script handles:
+- Cache check (uses `.specs/issues/cache/<num>.json` if exists)
+- `gh` CLI (tries both issue and PR views)
+- `curl` fallback to GitHub REST API
+- Auth detection (returns `AUTH_NEEDED` line for 401/403)
+- Caching newly fetched data
 
-  # Try gh first
-  if command -v gh &>/dev/null; then
-    for TYPE in issue pr; do
-      DATA=$(gh "$TYPE" view "$num" --repo "$owner/$repo" \
-        --json number,title,body,state,url,labels,createdAt,closedAt,mergedAt,comments 2>/dev/null)
-      if [ -n "$DATA" ] && [ "$DATA" != "null" ]; then
-        echo "$DATA" > "$cache_file"
-        echo "  $num: fetched via gh"
-        return 0
-      fi
-    done
-  fi
+Parse the `---SUMMARY---` section from the output:
 
-  # Fallback to curl
-  DATA=$(curl -s "https://api.github.com/repos/${owner}/${repo}/issues/${num}" 2>/dev/null)
-  MESSAGE=$(echo "$DATA" | grep -o '"message":"[^"]*"')
-  if [ -z "$MESSAGE" ] && [ -n "$DATA" ]; then
-    echo "$DATA" > "$cache_file"
-    echo "  $num: fetched via curl"
-    return 0
-  fi
-
-  if echo "$MESSAGE" | grep -qi "not found\|bad credentials\|rate limit"; then
-    return 2
-  fi
-  return 1
-}
-
-fetch_item "$OWNER" "$REPO" "$num"
-case $? in
-  0) ok ;;
-  2) AUTH_NEEDED=true ;;
-  *) NOT_FOUND+=("$num") ;;
-esac
+```
+GH|123|Add CPF validation
+CURL|456|Rate limiting
+CACHED|789|Fix timeout bug
+AUTH_NEEDED|101|
 ```
 
 #### 1f-vi. Handle authentication errors
@@ -427,101 +463,26 @@ Use MkDocs with the Material theme — produces the exact GitHub docs look with 
 pip install mkdocs mkdocs-material
 ```
 
-Generate an `mkdocs.yml` from the selected source files:
+Generate `mkdocs.yml` and `docs/index.md` using the companion scripts:
 
-```yaml
-site_name: <Project Name> — Specs
-site_description: Auto-generated documentation
-repo_url: <git remote origin if available>
-repo_name: <repo name>
-edit_uri: ""
+```bash
+SKILL_DIR=$(dirname "$(find ~/.config/opencode/skills/md-to-wiki -name SKILL.md | head -1)")
 
-theme:
-  name: material
-  palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-  features:
-    - navigation.instant
-    - navigation.tracking
-    - navigation.sections
-    - navigation.expand
-    - navigation.indexes
-    - search.highlight
-    - search.suggest
-    - content.code.copy
-    - content.tabs
-    - toc.follow
-
-markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.superfences
-  - pymdownx.tabbed:
-      alternate_style: true
-  - pymdownx.tasklist:
-      custom_checkbox: true
-  - admonition
-  - pymdownx.details
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - tables
-  - toc:
-      permalink: true
-
-nav:
-  - Home: index.md
-  - Project:
-      - Overview: specs/project/PROJECT.md
-      - Roadmap: specs/project/ROADMAP.md
-      - State / Decisions: specs/project/STATE.md
-  - Codebase:
-      - Architecture: specs/codebase/ARCHITECTURE.md
-      - Stack: specs/codebase/STACK.md
-      - Conventions: specs/codebase/CONVENTIONS.md
-      - Structure: specs/codebase/STRUCTURE.md
-      - Testing: specs/codebase/TESTING.md
-      - Integrations: specs/codebase/INTEGRATIONS.md
-      - Concerns: specs/codebase/CONCERNS.md
-  - Features:
-      - <Feature Name>:
-          - Spec: specs/features/<name>/spec.md
-          - Design: specs/features/<name>/design.md
-          - Tasks: specs/features/<name>/tasks.md
-          - Context: specs/features/<name>/context.md
-  - Quick Tasks:
-      - <NNN-slug>:
-          - Task: specs/quick/<NNN-slug>/TASK.md
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/generate-mkdocs$SCRIPT_EXT" "<Project Name>" .specs
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/generate-index$SCRIPT_EXT" "<Project Name>" "<audience>" .specs/features
 ```
 
-Rules for nav generation:
-- Skip files that don't exist or were excluded in the onboarding
-- Use feature folder name as the section title (capitalize, replace `-` with space)
-- Include `README.md` if present instead of or in addition to `spec.md`
-- Codebase section: only include files that exist
+These scripts automatically:
+- Scan `.specs/` for all markdown files
+- Generate a proper nav structure (project → codebase → features → quick tasks)
+- Create a tailored landing page based on the onboarding audience
+- Skip files that don't exist
 
-Create `docs/index.md` as the landing page. Tailor the landing page to the onboarding answers:
-- If audience is **new devs**: emphasize "Quick Start" links, architecture, conventions
-- If audience is **stakeholders**: emphasize roadmap, feature overviews, dates
-- If purpose is **API docs**: emphasize endpoint index, integration guides
+Then symlink and build:
 
 ```bash
 mkdir -p docs
-ln -s ../.specs docs/specs    # or cp -r if symlinks undesirable
-```
-
-Build:
-```bash
+ln -s ../.specs docs/specs
 mkdocs build
 ```
 
@@ -547,66 +508,26 @@ Rebuild after adding.
 
 Parse markdown specs for API contracts and generate an OpenAPI 3.0 spec served with Swagger UI.
 
-#### 3a. Scan for API specs
+**Delegate to the swagger-builder subagent** for the heavy lifting. Read the agent prompt at:
 
-Search the selected files for anything API-related:
+```
+SKILL_DIR/agents/swagger-builder.md
+```
+
+Launch a subagent via the Task tool with:
+- The swagger-builder.md file as the prompt
+- The list of selected API-related files
+- The project name
+- The template file `$SKILL_DIR/templates/swagger-ui.html`
+
+**Before delegation**, scan for API-related files to pass to the subagent:
 - Files named `api.md`, `openapi.md`, `contract.md`, `endpoints.md`
-- Any markdown file containing `## Endpoints`, `## API`, `## Routes`, `## OpenAPI`
-- Any `spec.md` that references HTTP methods (GET, POST, PUT, DELETE, PATCH)
+- Any markdown containing `## Endpoints`, `## API`, `## Routes`, `## OpenAPI`
+- Any `spec.md` referencing HTTP methods (GET, POST, PUT, DELETE, PATCH)
 
 Present findings and ask the user to confirm.
 
-#### 3b. Extract endpoints and generate OpenAPI YAML
-
-Read each identified file and extract API information. Build an `openapi.yml`:
-
-```yaml
-openapi: "3.0.3"
-info:
-  title: <Project Name> — API Specs
-  version: "1.0.0"
-  description: Auto-generated from spec-driven development markdowns
-
-servers:
-  - url: <ask user for base URL>
-    description: <ask user for environment>
-
-paths:
-  /<path>:
-    get:
-      summary: <extracted from markdown headings>
-      description: <extracted from markdown body>
-      parameters:
-        - name: <param>
-          in: query
-          schema:
-            type: string
-      responses:
-        "200":
-          description: <extracted or generic>
-```
-
-Heuristics for extraction:
-- `### GET /api/users` → path `/api/users`, method `GET`
-- `**Request:**` followed by JSON block → request body schema
-- `**Response:**` followed by JSON block → response schema
-- `**Parameters:**` followed by table → parameter definitions
-
-If the markdown doesn't have structured API definitions, tell the user and offer to create a skeleton OpenAPI that they can fill in.
-
-#### 3c. Serve with Swagger UI
-
-Option A — Swagger UI (interactive):
-```bash
-npx swagger-ui-cli openapi.yml --port 8080
-```
-
-Option B — ReDoc (clean docs look):
-```bash
-npx redoc-cli serve openapi.yml
-```
-
-Option C — Static HTML with embedded Swagger UI:
+**After the subagent returns**, take its output (openapi.yml + HTML) and present it to the user.
 ```html
 <!DOCTYPE html>
 <html>
@@ -701,54 +622,22 @@ Output: The project's GitHub Wiki tab now has the selected specs as pages.
 
 ### Format 4 — DokuWiki
 
-Convert selected markdowns to DokuWiki syntax and generate a ready-to-import directory.
-
-#### 4a. Install conversion tool
+Convert selected markdowns to DokuWiki syntax and generate a ready-to-import directory using the companion script:
 
 ```bash
-sudo apt install pandoc   # or brew install pandoc
+SKILL_DIR=$(dirname "$(find ~/.config/opencode/skills/md-to-wiki -name SKILL.md | head -1)")
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/to-dokuwiki$SCRIPT_EXT" wiki-export <selected_files>
 ```
 
-Or use pip:
-```bash
-pip install python-dokuwiki
-```
-
-#### 4b. Convert files
-
-```bash
-mkdir -p wiki-export/data/pages
-for md_file in $(find .specs -name "*.md"); do
-  page_id=$(echo "$md_file" | sed 's/\.specs\///' | sed 's/\.md$//' | sed 's/\//:/g' | tr '[:upper:]' '[:lower:]')
-  pandoc "$md_file" -f markdown -t dokuwiki -o "wiki-export/data/pages/${page_id}.txt"
-done
-```
-
-#### 4c. Generate namespace structure
-
-```
-wiki-export/
-├── data/
-│   └── pages/
-│       ├── specs:project:project.txt
-│       ├── specs:project:roadmap.txt
-│       ├── specs:codebase:architecture.txt
-│       ├── specs:features:auth:spec.txt
-│       └── ...
-└── README.md   # Import instructions
-```
-
-#### 4d. Provide import instructions
-
-Write a `wiki-export/README.md` with clear steps:
-1. Copy the `data/pages/` contents into your DokuWiki instance's `data/pages/` directory
-2. Or use the DokuWiki admin panel → File Manager to upload
-3. Generate a start page
-4. Adjust permissions after import
+The script handles:
+- Detecting pandoc (tells user to install if missing)
+- Converting paths to DokuWiki page IDs (`.specs/project/PROJECT.md` → `specs:project:project`)
+- Generating the `data/pages/` namespace structure
+- Writing import instructions to `wiki-export/README.md`
 
 Output: `wiki-export/` directory ready for DokuWiki import.
 
-**If `FETCH_ISSUES=true`** → generate `wiki-export/data/pages/references:start.txt` with the appendix (see Step 3b), convert each to DokuWiki syntax via pandoc.
+**If `FETCH_ISSUES=true`** → first generate the References appendix as a markdown temp file, then convert it via the DokuWiki script alongside the other files.
 
 ---
 
@@ -756,23 +645,21 @@ Output: `wiki-export/` directory ready for DokuWiki import.
 
 Generate a single PDF book from the selected spec markdowns.
 
-#### 5a. Install tools
+**Delegate to the pdf-builder subagent** for the heavy lifting. Read the agent prompt at:
 
-```bash
-# Option A: Pandoc + WeasyPrint (recommended)
-pip install weasyprint
-sudo apt install pandoc
-
-# Option B: Pandoc + wkhtmltopdf (fallback)
-sudo apt install wkhtmltopdf pandoc
+```
+SKILL_DIR/agents/pdf-builder.md
 ```
 
-#### 5b. Concatenate selected files in order
+Launch a subagent via the Task tool with:
+- The pdf-builder.md file as the prompt
+- The ordered list of selected files
+- The project name
 
-Build a single markdown document ordered by the onboarding scope. Default order:
+**Before delegation**, prepare the ordered file list:
 
 1. Title page (project name, date, auto-generated notice)
-2. Table of contents
+2. Table of contents (pandoc handles this)
 3. Project Overview (PROJECT.md)
 4. Roadmap (ROADMAP.md)
 5. State / Decisions (STATE.md)
@@ -780,38 +667,7 @@ Build a single markdown document ordered by the onboarding scope. Default order:
 7. Each feature (spec.md, design.md, tasks.md) — grouped by feature
 8. Quick tasks (if included)
 
-```bash
-{
-  echo "# <Project Name> — Specifications"
-  echo ""
-  echo "*Generated on $(date +%Y-%m-%d)*"
-  echo ""
-  echo "\\newpage"
-  echo ""
-
-  for md in .specs/project/PROJECT.md .specs/project/ROADMAP.md; do
-    if [ -f "$md" ]; then
-      cat "$md"
-      echo ""
-      echo "\\newpage"
-      echo ""
-    fi
-  done
-
-  for feature_dir in .specs/features/*/; do
-    name=$(basename "$feature_dir")
-    echo "## Feature: $(echo $name | tr '-' ' ' | sed 's/\b\(.\)/\u\1/g')"
-    echo ""
-    for f in "$feature_dir"spec.md "$feature_dir"design.md "$feature_dir"tasks.md; do
-      if [ -f "$f" ]; then
-        cat "$f"
-        echo ""
-        echo "\\newpage"
-        echo ""
-      fi
-    done
-  done
-} > specs-book.md
+**After the subagent returns**, verify the PDF was generated at `specs-book.pdf` and present it to the user.
 ```
 
 #### 5c. Convert to PDF
