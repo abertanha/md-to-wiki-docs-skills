@@ -221,7 +221,145 @@ Check each file exists. If not, ask for correction or suggest alternatives by sc
 
 ---
 
-### 1f. Ambiguity resolution checklist
+### 1f. GitHub Issues/PRs — enrich documentation with original context
+
+Enhance the documentation by linking related GitHub issues and pull requests. This adds traceability from the original problem → spec → implementation.
+
+#### 1f-i. Ask the user first
+
+> **I can enrich the documentation by linking related GitHub issues/PRs as a References appendix. Do you have any issue URLs or numbers to contribute?**
+
+Let the user paste URLs, numbers (`#123`), or say "no, scan the markdowns."
+
+If the user provides links → add them to the fetch list.
+
+#### 1f-ii. Scan markdowns for references
+
+```bash
+grep -n -E '(#[0-9]+|Fixes|Closes|Relates to|resolves)' \
+  <selected_files> 2>/dev/null
+```
+
+Collect all unique references:
+- `#123` → current repo
+- `owner/repo#456` → cross-repo (mention only, do not fetch)
+- Track which source file each reference came from
+
+#### 1f-iii. Present findings and confirm
+
+```
+Found 4 references:
+  You provided:     #123, #456
+  Scanned from specs:  #789 (features/auth/spec.md)
+  Cross-repo (mention only): owner/detran-api#12
+
+Include these? [Yes / Select which ones / Skip all]
+```
+
+If the user selects specific ones, remove the rest from the fetch list.
+
+If "Skip all" → mark `FETCH_ISSUES=false` and skip to the next step.
+
+#### 1f-iv. Detect the repository
+
+```bash
+REPO_URL=$(git remote get-url origin 2>/dev/null)
+OWNER=$(echo "$REPO_URL" | sed -n 's/.*github.com[:\/]\([^\/]*\)\/\(.*\)\.git/\1/p')
+REPO=$(echo "$REPO_URL" | sed -n 's/.*github.com[:\/]\([^\/]*\)\/\(.*\)\.git/\2/p')
+```
+
+If not detectable, ask the user for the `owner/repo` slug.
+
+#### 1f-v. Fetch issues/PRs (try gh → fallback curl)
+
+For each confirmed reference:
+
+```bash
+fetch_item() {
+  local owner="$1" repo="$2" num="$3"
+  local cache_file=".specs/issues/cache/${num}.json"
+  mkdir -p .specs/issues/cache
+
+  if [ -f "$cache_file" ]; then
+    echo "  $num: using cached data"
+    return 0
+  fi
+
+  # Try gh first
+  if command -v gh &>/dev/null; then
+    for TYPE in issue pr; do
+      DATA=$(gh "$TYPE" view "$num" --repo "$owner/$repo" \
+        --json number,title,body,state,url,labels,createdAt,closedAt,mergedAt,comments 2>/dev/null)
+      if [ -n "$DATA" ] && [ "$DATA" != "null" ]; then
+        echo "$DATA" > "$cache_file"
+        echo "  $num: fetched via gh"
+        return 0
+      fi
+    done
+  fi
+
+  # Fallback to curl
+  DATA=$(curl -s "https://api.github.com/repos/${owner}/${repo}/issues/${num}" 2>/dev/null)
+  MESSAGE=$(echo "$DATA" | grep -o '"message":"[^"]*"')
+  if [ -z "$MESSAGE" ] && [ -n "$DATA" ]; then
+    echo "$DATA" > "$cache_file"
+    echo "  $num: fetched via curl"
+    return 0
+  fi
+
+  if echo "$MESSAGE" | grep -qi "not found\|bad credentials\|rate limit"; then
+    return 2
+  fi
+  return 1
+}
+
+fetch_item "$OWNER" "$REPO" "$num"
+case $? in
+  0) ok ;;
+  2) AUTH_NEEDED=true ;;
+  *) NOT_FOUND+=("$num") ;;
+esac
+```
+
+#### 1f-vi. Handle authentication errors
+
+If any fetch returned 401/403:
+
+> **Some issues couldn't be fetched because they require authentication. Want to configure GitHub auth?**
+>
+> - **Yes** → "Set the GITHUB_TOKEN environment variable or run `gh auth login` in your terminal, then I'll retry."
+> - **No** → "Continue with only the already available context?"
+>   - Yes → skip failed fetches, proceed with what was fetched successfully
+>   - No → abort the References appendix, proceed without it
+
+#### 1f-vii. Process fetched data
+
+For each successful fetch:
+
+1. Extract JSON fields: `number`, `title`, `body`, `state`, `url`, `labels`, `createdAt`, `closedAt`/`mergedAt`, `comments`
+2. Truncate `body` to 2000 characters — if longer, append `... [View full issue](<url>)`
+3. Filter comments: keep only decision-making comments (accept/reject reasoning, alternatives, technical constraints). Skip bot comments, "+1", automated messages.
+
+For cross-repo references (`owner/repo#num`): do not fetch. Note them as "See owner/repo#num" in external references.
+
+#### 1f-viii. Summary after fetch
+
+```
+Fetched:
+  ✅ #123 — Add CPF validation       (closed, from cache)
+  ✅ #456 — Rate limiting            (open, via gh)
+  ✅ #789 — Fix timeout bug          (merged PR, via curl)
+  ⚠️  owner/detran-api#12            (cross-repo, not fetched)
+  ❌ #101 — Not found (404)          (skipped)
+
+References appendix will include 3 items + 1 external mention.
+```
+
+Set `FETCH_ISSUES=true` and store the processed data for appendix generation.
+
+---
+
+### 1g. Ambiguity resolution checklist
 
 Before moving on, verify:
 
@@ -240,7 +378,7 @@ If any are still fuzzy, ask a targeted follow-up. Do NOT proceed until all check
 
 ---
 
-### 1g. Summarize back to the user
+### 1h. Summarize back to the user
 
 After the interview, present a concise summary:
 
@@ -252,6 +390,7 @@ Purpose:          Reduce onboarding time
 Scope:            Project overview, architecture, all feature specs
 Excluded:         Quick tasks, detailed implementation tasks
 Source files:     12 files from .specs/ (auto-selected)
+GitHub issues:    3 issues + 1 PR (will append References appendix)
 Format:           To be decided next
 Tone:             Technical with one-paragraph executive summary per feature
 
@@ -393,6 +532,15 @@ Output: `site/index.html`. Offer to serve with `mkdocs serve` for live preview.
 mkdocs gh-deploy
 ```
 
+**If `FETCH_ISSUES=true`** → generate `docs/references.md` (see Step 3b) and add it to the mkdocs.yml nav:
+```yaml
+nav:
+  ...
+  - References: references.md
+```
+
+Rebuild after adding.
+
 ---
 
 ### Format 2 — Swagger / OpenAPI
@@ -477,6 +625,8 @@ Option C — Static HTML with embedded Swagger UI:
 
 Output: `site/api-docs/index.html` + `openapi.yml`.
 
+**If `FETCH_ISSUES=true`** → generate `site/references.html` with the appendix (see Step 3b). Add `externalDocs` links on each endpoint pointing to the corresponding issue.
+
 ---
 
 ### Format 3 — GitHub Tab Wiki
@@ -545,6 +695,8 @@ git push origin master    # GitHub wiki uses 'master' branch
 
 Output: The project's GitHub Wiki tab now has the selected specs as pages.
 
+**If `FETCH_ISSUES=true`** → generate `References.md` in the wiki repo (see Step 3b), commit and push together with the other pages.
+
 ---
 
 ### Format 4 — DokuWiki
@@ -595,6 +747,8 @@ Write a `wiki-export/README.md` with clear steps:
 4. Adjust permissions after import
 
 Output: `wiki-export/` directory ready for DokuWiki import.
+
+**If `FETCH_ISSUES=true`** → generate `wiki-export/data/pages/references:start.txt` with the appendix (see Step 3b), convert each to DokuWiki syntax via pandoc.
 
 ---
 
@@ -686,7 +840,74 @@ pandoc specs-book.md -f markdown --pdf-engine=wkhtmltopdf \
 
 Output: `specs-book.pdf`.
 
+**If `FETCH_ISSUES=true`** → generate the References appendix (see Step 3b below).
+
 ---
+
+## Step 3b — Generate References Appendix
+
+If `FETCH_ISSUES=false` (user skipped or no references found), skip this step entirely.
+
+Otherwise, generate a References appendix containing the fetched issues and PRs. Adapt the content to the chosen format.
+
+### Appendix content structure
+
+```markdown
+## References
+
+### Issues
+
+| # | Title | State | Source |
+|---|-------|-------|--------|
+| [#123](url) | Add CPF validation | ✅ Closed | features/auth/spec.md |
+| [#456](url) | Rate limiting | 🔄 Open | features/detran/spec.md |
+
+---
+
+#### #123 — Add CPF validation
+
+*State: closed | Labels: enhancement, api | Opened: 2025-01-15*
+
+(fetched body, truncated to ~2000 chars)
+
+> *"We chose to validate via external API instead of local regex to avoid maintaining state rules."* — @joao (key comment)
+
+[View full issue](https://github.com/owner/repo/issues/123)
+
+#### #456 — Rate limiting
+
+...
+
+---
+
+### Pull Requests
+
+| # | Title | State | Linked issue |
+|---|-------|-------|-------------|
+| [#789](url) | feat: add CPF validation | ✅ Merged | #123 |
+
+---
+
+### External References
+
+- owner/detran-api#12 — mentioned in features/detran/spec.md (external repo, not fetched)
+```
+
+### Per-format placement
+
+| Format | Where to put the appendix |
+|--------|--------------------------|
+| **MkDocs HTML** | `docs/references.md` with nav entry `- References: references.md` |
+| **Swagger** | Standalone `references.html` page + `externalDocs` links on endpoints |
+| **GitHub Wiki** | `References.md` page in the wiki repo |
+| **DokuWiki** | `references:start.txt` as a new namespace |
+| **PDF** | Last chapter before the final page |
+
+### Rendering rules
+
+- Truncated bodies: append `[...](full issue URL)` link
+- Key comments: render as blockquotes with attribution (`— @author`)
+- External references: italicized, with "(external repo, not fetched)" note
 
 ## Step 4 — Offer deployment
 

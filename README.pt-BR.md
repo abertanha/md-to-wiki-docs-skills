@@ -14,15 +14,17 @@ Converte arquivos markdown gerados por sessões _spec-driven_ (tlc-spec-driven, 
 
 ## Fluxo
 
-1. **Onboarding** — O skill entrevista você para entender público-alvo, objetivos, escopo e quais arquivos incluir
-2. **Recomendação de formato** — Baseado nas respostas, sugere o formato mais adequado
-3. **Execução** — Gera a documentação no formato escolhido
-4. **Deploy** — Oferece opções de publicação (GitHub Pages, servidor local, etc.)
+1. **Onboarding** — O skill entrevista você para entender público-alvo, objetivos, escopo, quais arquivos incluir e se deseja vincular issues/PRs do GitHub
+2. **Busca de issues/PRs** — Escaneia os markdowns por referências `#123`, pergunta se você tem mais links, então busca via `gh` CLI (fallback `curl`). Faz cache local. Apenas o repositório principal é buscado; referências entre repositórios são apenas mencionadas.
+3. **Recomendação de formato** — Sugere o melhor formato baseado nas respostas
+4. **Execução** — Gera a documentação no formato escolhido, anexando um **apêndice de Referências** com as issues/PRs buscadas
+5. **Deploy** — Oferece opções de publicação (GitHub Pages, servidor local, etc.)
 
 ## Regras rígidas
 
 - **Nenhum diagrama em ASCII.** Todo fluxo, arquitetura, sequência ou estado deve usar Mermaid (` ```mermaid ... ``` `)
 - Diagramas ASCII encontrados nos markdowns de origem são convertidos para Mermaid automaticamente
+- **Issues são cacheadas para sempre** — só refetch se o usuário pedir explicitamente
 
 ## Instalação
 
