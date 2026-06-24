@@ -153,9 +153,9 @@ Você pode especificar diretórios personalizados contendo arquivos markdown al�
 ## Compartilhamento
 
 O skill set pode ser compartilhado como:
-- Um repositório git (clone para sua pasta de skills)
-- Uma URL de SKILL.md carregada via `opencode.json`
-- Cópia direta entre máquinas da equipe
+- Um repositório git — clone para sua pasta de skills
+- Cópia direta — copie a pasta entre máquinas da equipe
+- Via linguagem natural — cole a URL do repositório em qualquer sessão de agente e diga: *"Instala este skill de https://github.com/abertanha/md-to-wiki-docs-skills"*
 
 ## Licença
 

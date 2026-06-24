@@ -153,9 +153,9 @@ You can specify custom directories containing markdown files in addition to (or 
 ## Sharing
 
 The skill set can be shared as:
-- A git repository (clone into your skills folder)
-- A single-file SKILL.md URL loaded via `opencode.json`
-- A direct copy across team machines
+- A git repository — clone it into your skills folder
+- A direct copy — copy the folder across team machines
+- Via natural language — paste the repo URL into any agent session and say: *"Install this skill from https://github.com/abertanha/md-to-wiki-docs-skills"*
 
 ## License
 
