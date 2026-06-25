@@ -57,9 +57,9 @@ Os scripts `generate-index.sh` e `generate-index.ps1` aceitam os seguintes valor
 
 ```
 md-to-wiki/
-├── SKILL.md                  # Orquestrador principal
-├── README.md                 # Este arquivo (pt-BR)
-├── README.en.md              # Documentação em inglês
+├── SKILL.md                  # Roteador fino (~80 linhas, ~600 tokens)
+├── README.md                 # Documentação em inglês (principal)
+├── README.pt-BR.md           # Este arquivo
 ├── LICENSE                   # MIT
 ├── scripts/                  # Scripts auxiliares (.sh + .ps1 emparelhados)
 │   ├── discover-sources.sh   # Escaneia diretório .specs/
@@ -73,13 +73,20 @@ md-to-wiki/
 │   ├── to-pdf.sh             # Concatena + gera PDF
 │   ├── to-pdf.ps1            # (PowerShell)
 │   ├── to-dokuwiki.sh        # Converte para sintaxe DokuWiki
-│   └── to-dokuwiki.ps1       # (PowerShell)
+│   ├── to-dokuwiki.ps1       # (PowerShell)
+│   └── prompt-tests.sh       # Testes de roteamento e execução (excluído do git)
 ├── templates/                # Templates reutilizáveis
 │   ├── index.md              # Template da landing page
 │   └── swagger-ui.html       # Wrapper Swagger UI
-└── agents/                   # Subagentes para formatos complexos
-    ├── swagger-builder.md    # Geração de OpenAPI 3.0
-    └── pdf-builder.md        # Geração de PDF com Pandoc
+└── agents/                   # Subagentes carregados sob demanda
+    ├── onboarding.md         # Entrevista de descoberta + detecção de SO
+    ├── format-mkdocs.md      # Geração de site MkDocs Material
+    ├── format-swagger.md     # Geração de OpenAPI 3.0 + Swagger UI
+    ├── format-github-wiki.md # Publicação no GitHub Wiki
+    ├── format-dokuwiki.md    # Conversão para sintaxe DokuWiki
+    ├── format-pdf.md         # Geração de PDF com Pandoc
+    ├── references.md         # Apêndice de issues/PRs do GitHub
+    └── deploy.md             # Opções de deploy
 ```
 
 ## Instalação
@@ -87,26 +94,15 @@ md-to-wiki/
 ### Opção 1 — Clone e link simbólico
 
 ```bash
-git clone <url-do-repo>
-ln -s "$(pwd)/md-to-wiki" ~/.config/opencode/skills/md-to-wiki
+git clone https://github.com/abertanha/md-to-wiki-docs-skills
+ln -s "$(pwd)/md-to-wiki-docs-skills/md-to-wiki" ~/.config/opencode/skills/md-to-wiki
 ```
 
 ### Opção 2 — Cópia direta
 
 ```bash
-git clone <url-do-repo>
-cp -r md-to-wiki ~/.config/opencode/skills/md-to-wiki
-```
-
-### Opção 3 — Carregar via URL (opencode apenas)
-
-Adicione ao seu `opencode.json`:
-```json
-{
-  "skills": {
-    "urls": ["https://raw.githubusercontent.com/<user>/<repo>/main/skills/md-to-wiki/SKILL.md"]
-  }
-}
+git clone https://github.com/abertanha/md-to-wiki-docs-skills
+cp -r md-to-wiki-docs-skills/md-to-wiki ~/.config/opencode/skills/md-to-wiki
 ```
 
 ### Locais de instalação
