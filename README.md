@@ -91,14 +91,25 @@ md-to-wiki/
 
 ## Installation
 
-### Option 1 — Clone and symlink
+### Option 1 — npx (recommended)
+
+```bash
+npx github:abertanha/md-to-wiki-docs-skills scripts/install.sh
+```
+
+To update later:
+```bash
+npx github:abertanha/md-to-wiki-docs-skills scripts/update.sh
+```
+
+### Option 2 — Clone and symlink
 
 ```bash
 git clone https://github.com/abertanha/md-to-wiki-docs-skills
 ln -s "$(pwd)/md-to-wiki-docs-skills/md-to-wiki" ~/.config/opencode/skills/md-to-wiki
 ```
 
-### Option 2 — Direct copy
+### Option 3 — Direct copy
 
 ```bash
 git clone https://github.com/abertanha/md-to-wiki-docs-skills
