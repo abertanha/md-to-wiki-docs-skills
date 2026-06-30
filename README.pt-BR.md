@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/md-to-wikis.png" alt="md-to-wiki" width="600">
+</p>
+
 # md-to-wiki — Publicador de Especificações Multi-Formato
 
 Converte arquivos markdown gerados por sessões _spec-driven_ (tlc-spec-driven, ai-harness-engineer, etc.) em documentação no formato que você escolher.
