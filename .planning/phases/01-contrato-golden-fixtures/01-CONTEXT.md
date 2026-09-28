@@ -33,6 +33,12 @@ Fora do escopo: extração/consumo do catálogo (Phase 2), qualquer tradução p
 - **D-07:** Formato **chave → sítio**: cada linha usa a chave futura do catálogo (`site_name_suffix`, `nav_home`, `section_quick_start`, … — seed do glossário definida no stack do projeto) mapeada ao `arquivo:linha` atual. A Phase 2 extrai as strings `en` **verbatim** conferindo contra o inventário; o rubric audita o par en/pt-br completo contra o mesmo mapa.
 - **D-08:** Casa: **`docs/chrome-inventory.md`** para o mapa; o contrato da skill (`CONTEXT.md`) recebe **somente as decisões de escopo** (política fail-closed de chave ausente, localização/formato do catálogo, escopo Swagger, datas ISO 8601) e aponta para o mapa — o contrato é lido por agents em runtime e permanece enxuto.
 
+### Decisões da sessão de planejamento (pós-pesquisa, Q1–Q4)
+- **D-09 (Q1):** `pandoc` entra como dependência **somente de dev** (mesmo regime do pwsh, D-03) — `to-dokuwiki.*` faz `exit 1` sem pandoc, então o golden DokuWiki congela a saída real do pandoc; o harness marca a perna como `SKIPPED`/exit 3 quando pandoc está ausente, igual à perna `.ps1`.
+- **D-10 (Q2):** O golden `.ps1` da superfície PDF vem de `specs-book.md` (o que `to-pdf.ps1` produz sem pandoc) — **exceção documentada a D-01** (o geminho `.ps1` não tem fallback markdown); é onde vive o rodapé datado, então a máscara de data continua coberta.
+- **D-11 (Q3):** `AUDIENCE=general` fixo na captura dos goldens (determinismo; chrome inventariado não depende do valor); valor registrado no harness.
+- **D-12 (Q4):** `templates/index.md` entra no inventário de chrome como **unconsumed** (arquivo:linha incluídos, marcado como tal) — congela o estado real e informa a Phase 2 de que nada o lê.
+
 ### Claude's Discretion
 - Mecânica da máscara de data: token simétrico aplicado no golden e na saída fresca **antes** do diff, cobrindo os 3 sítios datados da cadeia (`scripts/generate-index.sh:105`, `scripts/generate-index.ps1:84`, `scripts/to-pdf.ps1:21`); token e sítios documentados no harness e no contrato da fase. Nota: `to-pdf.ps1` emite rodapé datado que o `to-pdf.sh` não emite — divergência entre gêmeos que os goldens por geminho capturam como estão (wart atual preservado).
 - Layout interno de `tests/` (harness em `tests/regress.sh` — nome que a Phase 4 referencia — + `tests/fixtures/` com a tree e os goldens `.sh`/`.ps1` separados por geminho).
