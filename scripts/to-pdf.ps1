@@ -25,7 +25,7 @@ $content = @"
 "@
 
 foreach ($f in $Files) {
-  if (-not (Test-Path $f)) { continue }
+  if (-not (Test-Path $f)) { Write-Output "WARNING: $f not found, skipping"; continue }
   $content += Get-Content $f -Raw
   $content += "`n`n\newpage`n`n"
 }

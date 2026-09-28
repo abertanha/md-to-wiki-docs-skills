@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-# generate-mkdocs.sh — Generate mkdocs.yml from .specs tree
+# generate-mkdocs.sh — Build a MkDocs Material site skeleton from a specs tree
+# Usage: generate-mkdocs.sh [project_name] [specs_dir]
 set -euo pipefail
 
 PROJECT_NAME="${1:-Project}"
 SPECS_DIR="${2:-.specs}"
-WITH_REFS=false
+SITE_DOCS="docs"
 
-mkdir -p docs
+mkdir -p "$SITE_DOCS/specs"
+
+# Copy the specs tree into the site so nav links resolve inside docs_dir
+cp -r "$SPECS_DIR"/. "$SITE_DOCS/specs"/
 
 # Detect repo URL from git remote (preferred) or .specs config
 repo_url=""
@@ -17,43 +21,32 @@ if [ -z "$repo_url" ] && [ -f ".specs/config.json" ]; then
   repo_url=$(jq -r '.repo_url // ""' .specs/config.json 2>/dev/null || echo "")
 fi
 
-# Build nav structure
+# Build nav: one section per top-level spec dir, files discovered recursively.
+# No `... | while read` here — pipe loops run in subshells and lose nav_entries.
 nav_entries=""
-issues_entry=""
-
-# Iterate .specs subdirectories, building nav items
-find "$SPECS_DIR" -mindepth 1 -maxdepth 1 -type d | sort | while read -r dir; do
-  name=$(basename "$dir")
-  label=$(echo "$name" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
-
-  # Collect markdown files in this section
-  files=$(find "$dir" -maxdepth 1 -name '*.md' ! -name '_*' | sort)
-  if [ -z "$files" ]; then
-    continue
-  fi
-
-  nav_entries="${nav_entries}  - ${label}:"
-
-  echo "$files" | while read -r file; do
-    rel_path="${file#./}"
+for dir in "$SITE_DOCS/specs"/*/; do
+  [ -d "$dir" ] || continue
+  label=$(basename "$dir" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
+  files=$(find "$dir" -name '*.md' ! -name '_*' | sort)
+  [ -z "$files" ] && continue
+  nav_entries="${nav_entries}  - ${label}:"$'\n'
+  while IFS= read -r file; do
+    rel="${file#"$SITE_DOCS"/}"
     file_label=$(basename "$file" .md | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
-    nav_entries="${nav_entries}"$'\n    - '"${file_label}: ${rel_path}"
-  done
-  nav_entries="${nav_entries}"$'\n'
+    nav_entries="${nav_entries}    - ${file_label}: ${rel}"$'\n'
+  done <<< "$files"
 done
 
-# Issues entry (optional)
-if [ -d ".specs/issues/cache" ] && [ -n "$(ls -A .specs/issues/cache 2>/dev/null)" ]; then
-  issues_count=$(ls -1 .specs/issues/cache/*.json 2>/dev/null | wc -l)
-  issues_entry="  - Issues: issues/"
-fi
-
-# Generate mkdocs.yml
-cat > docs/mkdocs.yml <<YAML
+# Generate mkdocs.yml at the project root (docs_dir/site_dir explicit, so the
+# build works from the root regardless of the caller's cwd)
+cat > mkdocs.yml <<YAML
 site_name: $PROJECT_NAME — Specifications
 site_description: Auto-generated documentation from spec-driven development
 repo_url: $repo_url
 edit_uri: blob/main/
+
+docs_dir: $SITE_DOCS
+site_dir: site
 
 theme:
   name: material
@@ -64,7 +57,7 @@ theme:
 
 nav:
   - Home: index.md
-${nav_entries}${issues_entry}
+${nav_entries}
 YAML
 
-echo "Generated docs/mkdocs.yml"
+echo "Generated mkdocs.yml (docs in $SITE_DOCS/specs/, nav sections: $(grep -c '^  - ' mkdocs.yml))"

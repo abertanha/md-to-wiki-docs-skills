@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # discover-sources.sh — Scan .specs/ (or custom paths) for markdown files
-# Usage: discover-sources.sh [--dir <path>] [--format summary|files|json]
+# Usage: discover-sources.sh [dir] [summary|files|json]
 set -euo pipefail
 
 DIR="${1:-.specs}"

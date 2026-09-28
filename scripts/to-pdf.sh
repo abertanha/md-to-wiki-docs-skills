@@ -24,12 +24,18 @@ BOOK="${BUILD_DIR}/specs-book.md"
   done
 } > "$BOOK"
 
-# Generate PDF via pandoc
+# Generate PDF via pandoc — weasyprint first (best output), then latex engines,
+# then wkhtmltopdf; fall back to emitting the markdown book
 if command -v pandoc &>/dev/null; then
   if pandoc --help | grep -q pdf-engine; then
-    pandoc "$BOOK" -o "$OUTPUT" --pdf-engine=xelatex 2>/dev/null \
-      || pandoc "$BOOK" -o "$OUTPUT" --pdf-engine=pdflatex 2>/dev/null \
-      || pandoc "$BOOK" -o "$OUTPUT" --pdf-engine=wkhtmltopdf 2>/dev/null \
+    pandoc "$BOOK" -o "$OUTPUT" --toc --toc-depth=3 --pdf-engine=weasyprint 2>/dev/null \
+      && echo "engine: weasyprint" \
+      || { pandoc "$BOOK" -o "$OUTPUT" --toc --toc-depth=3 --pdf-engine=xelatex 2>/dev/null \
+           && echo "engine: xelatex"; } \
+      || { pandoc "$BOOK" -o "$OUTPUT" --toc --toc-depth=3 --pdf-engine=pdflatex 2>/dev/null \
+           && echo "engine: pdflatex"; } \
+      || { pandoc "$BOOK" -o "$OUTPUT" --toc --toc-depth=3 --pdf-engine=wkhtmltopdf 2>/dev/null \
+           && echo "engine: wkhtmltopdf"; } \
       || { echo "WARNING: No PDF engine available. Outputting markdown book."; cp "$BOOK" "$OUTPUT"; }
   else
     pandoc "$BOOK" -o "$OUTPUT"
@@ -40,4 +46,4 @@ else
   echo "WARNING: pandoc not found. Outputting markdown book as $OUTPUT"
 fi
 
-rm -f "$BOOK"
+# specs-book.md is retained — deletion follows the CONTEXT.md cleanup policy

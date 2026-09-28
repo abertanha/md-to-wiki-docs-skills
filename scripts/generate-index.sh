@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # generate-index.sh — Create landing page from discovered sources
+# Usage: generate-index.sh <project_name> <audience> [feature_base_dirs...]
+# Emits links only for files that exist (keeps `mkdocs build --strict` clean).
 set -euo pipefail
 
 PROJECT_NAME="${1:?Usage: generate-index.sh <project_name> <audience> [feature_base_dirs...]}"
@@ -14,8 +16,17 @@ for base in "$@"; do
   done
 done
 
-OUTPUT="docs/index.md"
-mkdir -p docs
+OUTPUT="${MDW_INDEX_OUT:-docs/index.md}"
+mkdir -p "$(dirname "$OUTPUT")"
+
+# Emit a nav link only when the target exists under docs/
+link() { # <label> <relpath-under-docs>
+  [ -f "docs/$2" ] && printf -- "- [%s](%s)\n" "$1" "$2"
+}
+# Emit a table cell link, or an em dash when the file is absent
+cell() { # <relpath-under-docs> <label>
+  if [ -f "docs/$1" ]; then printf '[%s](%s)' "$2" "$1"; else printf '—'; fi
+}
 
 cat > "$OUTPUT" <<EOF
 # $PROJECT_NAME — Specifications
@@ -24,37 +35,32 @@ cat > "$OUTPUT" <<EOF
 
 EOF
 
-if [ "$AUDIENCE" = "developers" ] || [ "$AUDIENCE" = "developer" ] || [ "$AUDIENCE" = "devs" ]; then
-  cat >> "$OUTPUT" <<EOF
-## Quick Start
-
-- [Project Overview](specs/project/PROJECT.md)
-- [Architecture](specs/codebase/ARCHITECTURE.md)
-- [Stack](specs/codebase/STACK.md)
-- [Conventions](specs/codebase/CONVENTIONS.md)
-
-EOF
-elif [ "$AUDIENCE" = "stakeholders" ] || [ "$AUDIENCE" = "stakeholder" ]; then
-  cat >> "$OUTPUT" <<EOF
-## Overview
-
-- [Project Overview](specs/project/PROJECT.md)
-- [Roadmap](specs/project/ROADMAP.md)
-- [State & Decisions](specs/project/STATE.md)
-
-EOF
-else
-  cat >> "$OUTPUT" <<EOF
-## Overview
-
-| Section | Description |
-|---------|-------------|
-| [Project Overview](specs/project/PROJECT.md) | Vision, goals, and scope |
-| [Roadmap](specs/project/ROADMAP.md) | Features and milestones |
-| [Architecture](specs/codebase/ARCHITECTURE.md) | System architecture |
-
-EOF
-fi
+case "$AUDIENCE" in
+  developer|developers|devs)
+    section=$(printf '%s\n' \
+      "$(link 'Project Overview' 'specs/project/PROJECT.md')" \
+      "$(link 'Architecture' 'specs/codebase/ARCHITECTURE.md')" \
+      "$(link 'Stack' 'specs/codebase/STACK.md')" \
+      "$(link 'Conventions' 'specs/codebase/CONVENTIONS.md')" | sed '/^$/d')
+    [ -n "$section" ] && { printf '## Quick Start\n\n%s\n\n' "$section" >> "$OUTPUT"; }
+    ;;
+  stakeholder|stakeholders)
+    section=$(printf '%s\n' \
+      "$(link 'Project Overview' 'specs/project/PROJECT.md')" \
+      "$(link 'Roadmap' 'specs/project/ROADMAP.md')" \
+      "$(link 'State & Decisions' 'specs/project/STATE.md')" | sed '/^$/d')
+    [ -n "$section" ] && { printf '## Overview\n\n%s\n\n' "$section" >> "$OUTPUT"; }
+    ;;
+  *)
+    rows=""
+    [ -f "docs/specs/project/PROJECT.md" ]     && rows+="| [Project Overview](specs/project/PROJECT.md) | Vision, goals, and scope |"$'\n'
+    [ -f "docs/specs/project/ROADMAP.md" ]     && rows+="| [Roadmap](specs/project/ROADMAP.md) | Features and milestones |"$'\n'
+    [ -f "docs/specs/codebase/ARCHITECTURE.md" ] && rows+="| [Architecture](specs/codebase/ARCHITECTURE.md) | System architecture |"$'\n'
+    if [ -n "$rows" ]; then
+      printf '## Overview\n\n| Section | Description |\n|---------|-------------|\n%s\n' "$rows" >> "$OUTPUT"
+    fi
+    ;;
+esac
 
 # Feature table
 FEATURE_COUNT=0
@@ -64,56 +70,38 @@ for dir in "${FEATURE_DIRS[@]}"; do
 done
 
 if [ "$FEATURE_COUNT" -gt 0 ]; then
-  cat >> "$OUTPUT" <<EOF
-## Features
-
-| Feature | Spec | Design | Tasks |
-|---------|------|--------|-------|
-EOF
+  printf '## Features\n\n| Feature | Spec | Design | Tasks |\n|---------|------|--------|-------|\n' >> "$OUTPUT"
   for dir in "${FEATURE_DIRS[@]}"; do
     [ -d "$dir" ] || continue
+    # Links must be relative to the site's docs dir, not the project root
+    rel_dir="${dir#./}"
+    rel_dir="${rel_dir#docs/}"
     name=$(basename "$dir" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
-    spec="${dir}spec.md"
-    design="${dir}design.md"
-    tasks="${dir}tasks.md"
-    cat >> "$OUTPUT" <<EOF
-| $name | [Spec]($spec) | [Design]($design) | [Tasks]($tasks) |
-EOF
+    printf '| %s | %s | %s | %s |\n' "$name" \
+      "$(cell "${rel_dir}spec.md" Spec)" \
+      "$(cell "${rel_dir}design.md" Design)" \
+      "$(cell "${rel_dir}tasks.md" Tasks)" >> "$OUTPUT"
   done
+  printf '\n' >> "$OUTPUT"
 fi
 
 # Architecture section
-if [ -f "specs/codebase/ARCHITECTURE.md" ]; then
-  cat >> "$OUTPUT" <<EOF
-
-## Architecture
-
-Refer to the [Architecture](specs/codebase/ARCHITECTURE.md) document for system design and component relationships.
-
-EOF
+if [ -f "docs/specs/codebase/ARCHITECTURE.md" ]; then
+  printf '\n## Architecture\n\nRefer to the [Architecture](specs/codebase/ARCHITECTURE.md) document for system design and component relationships.\n\n' >> "$OUTPUT"
 fi
 
 # Getting started
-cat >> "$OUTPUT" <<EOF
-## Getting Started
-
-For installation instructions, see the [Project Overview](specs/project/PROJECT.md).
-
-EOF
-
-if [ "$AUDIENCE" = "developer" ] || [ "$AUDIENCE" = "developers" ] || [ "$AUDIENCE" = "devs" ]; then
-  cat >> "$OUTPUT" <<EOF
-## Development
-
-See [Setup Guide](specs/project/SETUP.md) and [Contributing](specs/project/CONTRIBUTING.md) for developer onboarding.
-
-EOF
+if [ -f "docs/specs/project/PROJECT.md" ]; then
+  printf '## Getting Started\n\nFor installation instructions, see the [Project Overview](specs/project/PROJECT.md).\n\n' >> "$OUTPUT"
 fi
 
-cat >> "$OUTPUT" <<EOF
+if [ "$AUDIENCE" = "developer" ] || [ "$AUDIENCE" = "developers" ] || [ "$AUDIENCE" = "devs" ]; then
+  section=$(printf '%s\n' \
+    "$(link 'Setup Guide' 'specs/project/SETUP.md')" \
+    "$(link 'Contributing' 'specs/project/CONTRIBUTING.md')" | sed '/^$/d')
+  [ -n "$section" ] && { printf '## Development\n\n%s\n\n' "$section" >> "$OUTPUT"; }
+fi
 
----
-*Generated by [md-to-wiki](https://opencode.ai) — $(date +%Y-%m-%d)*
-EOF
+printf -- '---\n*Generated by [md-to-wiki](https://github.com/abertanha/md-to-wiki-docs-skills) — %s*\n' "$(date +%Y-%m-%d)" >> "$OUTPUT"
 
 echo "Generated $OUTPUT"
