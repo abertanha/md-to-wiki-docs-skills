@@ -66,21 +66,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PARAM-01 | — | Pending |
-| PARAM-02 | — | Pending |
-| CHROME-01 | — | Pending |
-| CHROME-02 | — | Pending |
-| CHROME-03 | — | Pending |
-| CHROME-04 | — | Pending |
-| QUAL-01 | — | Pending |
-| QUAL-02 | — | Pending |
-| QUAL-03 | — | Pending |
+| PARAM-01 | Phase 1 | Pending |
+| PARAM-02 | Phase 1 | Pending |
+| CHROME-01 | Phase 2 | Pending |
+| CHROME-02 | Phase 3 | Pending |
+| CHROME-03 | Phase 2 | Pending |
+| CHROME-04 | Phase 2 | Pending |
+| QUAL-01 | Phase 3 | Pending |
+| QUAL-02 | Phase 1 | Pending |
+| QUAL-03 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 9 total
-- Mapped to phases: 0
-- Unmapped: 9 ⚠️ (roadmap creation fills this)
+- Mapped to phases: 9
+- Unmapped: 0
 
 ---
+
 *Requirements defined: 2026-09-28*
-*Last updated: 2026-09-28 after initial definition*
+*Last updated: 2026-09-28 after roadmap creation*
