@@ -1,70 +1,47 @@
 # Onboarding — Subagent
 
-You are a specialized subagent for interviewing the user to build a clear specification for documentation generation.
+Interview the user to set every variable in [CONTEXT.md](../CONTEXT.md) (§Variables). Return only when all of them are confirmed.
 
-## Your task
+## Interview
 
-Ask the user questions to determine:
+1. **PROJECT_NAME** — what is this project called?
+2. **SOURCES** — the single root directory of the specs tree (typically `.specs/`; layout in CONTEXT.md §Source taxonomy). Confirm the directory exists on disk.
+3. **AUDIENCE** — `developer` \| `stakeholder` \| `general` (canonical tokens; use one of these exactly):
+   - developer — detailed code docs, API references
+   - stakeholder — executive summaries, roadmaps, decisions
+   - general — feature overviews, tutorials
+4. **FORMAT** — which output format? Present the route table from SKILL.md.
+5. **Deployment** — hosted or local-only?
 
-1. **Project name** — what is this about?
-2. **Source files** — where are the markdown spec files? (`.specs/`, `docs/`, etc.)
-3. **Audience** — who will read this?
-   - Developers: detailed code docs, API references
-   - Stakeholders: executive summaries, roadmaps, decisions
-   - General public: feature overviews, tutorials
-4. **Format** — what output format? (delegate to orchestrator)
-5. **Deployment** — do they need it hosted?
-
-## Version check
-
-Before proceeding, check if the skill itself is outdated:
+## Resolve SKILL_DIR
 
 ```bash
-SKILL_DIR=$(dirname "$(find ~/.config/opencode/skills/md-to-wiki -name SKILL.md 2>/dev/null | head -1)")
-if [ -z "$SKILL_DIR" ]; then
-  SKILL_DIR=$(dirname "$(find .opencode/skills/md-to-wiki -name SKILL.md 2>/dev/null | head -1)")
-fi
-if [ -n "$SKILL_DIR" ] && [ -d "$SKILL_DIR/.git" ]; then
-  cd "$SKILL_DIR"
-  git fetch origin --quiet 2>/dev/null
-  BEHIND=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo 0)
-  LOCAL=$(git rev-parse --short HEAD 2>/dev/null)
-  REMOTE=$(git rev-parse --short origin/main 2>/dev/null)
-  if [ "$BEHIND" -gt 0 ] 2>/dev/null; then
-    echo "Skill is $BEHIND commit(s) behind. Local: $LOCAL | Remote: $REMOTE"
-    OUTDATED=true
-  else
-    echo "Skill is up to date ($LOCAL)."
-    OUTDATED=false
-  fi
-else
-  OUTDATED=false
-fi
+SKILL_DIR=$(dirname "$(find ~/.config/opencode/skills/md-to-wiki "$PWD/.opencode/skills/md-to-wiki" "$PWD/.cursor/skills/md-to-wiki" -name SKILL.md 2>/dev/null | head -1)")
 ```
 
-## OS detection
+## Update check
 
-Detect the OS once — all subsequent script calls reuse these variables:
+If `$SKILL_DIR/.git` exists, the skill is a git clone — offer to run `scripts/update.sh`.
+
+## Detect OS (assign once)
 
 ```bash
-case "$(uname -s 2>/dev/null)" in
-  Linux|Darwin)
-    OS_TYPE="unix"; SCRIPT_EXT=".sh"; SCRIPT_RUNNER=""
-    ;;
-  MINGW*|MSYS*|CYGWIN*)
-    OS_TYPE="windows"; SCRIPT_EXT=".sh"; SCRIPT_RUNNER=""
-    ;;
-  *)
-    OS_TYPE="windows"; SCRIPT_EXT=".ps1"; SCRIPT_RUNNER="powershell -File"
-    ;;
+kernel="$(uname -s 2>/dev/null || true)"
+case "$kernel" in
+  MINGW*|MSYS*|CYGWIN*)  OS_TYPE="unix";    SCRIPT_EXT=".sh";  SCRIPT_RUNNER="" ;;                 # Git Bash runs .sh natively
+  "")                    OS_TYPE="windows"; SCRIPT_EXT=".ps1"; SCRIPT_RUNNER="powershell -File" ;; # no uname → PowerShell host
+  *)                     OS_TYPE="unix";    SCRIPT_EXT=".sh";  SCRIPT_RUNNER="" ;;                 # Linux, Darwin, BSD, …
 esac
 ```
 
-## Output
+Unix is the default; Windows is the special case.
 
-Return to the orchestrator:
-- `PROJECT_NAME` — the confirmed project name
-- `SOURCES` — paths to source markdown files
-- `AUDIENCE` — developer | stakeholder | general
-- `OS_DETECTED` — unix | windows
-- `SKILL_DIR` — absolute path to skill directory
+## Return criteria
+
+Return to the orchestrator only when all of these hold — if one cannot be satisfied, say so and stop:
+
+- Every variable in CONTEXT.md §Variables has a value (`FORMAT` included)
+- The `SOURCES` directory exists on disk
+- `SKILL_DIR` resolved non-empty
+
+Return the variables by their CONTEXT.md names (`PROJECT_NAME`, `SOURCES`, `AUDIENCE`, `FORMAT`, `OS_TYPE`, `SCRIPT_EXT`, `SCRIPT_RUNNER`, `SKILL_DIR`).

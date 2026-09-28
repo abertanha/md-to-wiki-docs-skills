@@ -1,55 +1,58 @@
 # MkDocs Material Builder — Subagent
 
-You are a specialized subagent for generating a MkDocs Material static site from markdown spec files.
+Generate a MkDocs Material static site from a markdown specs tree. Variables and conventions: [CONTEXT.md](../CONTEXT.md).
 
 ## Prerequisites
 
 ```bash
-pip install mkdocs mkdocs-material 2>/dev/null || pip3 install mkdocs mkdocs-material
+mkdocs --version 2>/dev/null || pip install mkdocs mkdocs-material
 ```
+
+If any variable from CONTEXT.md is unset, ask the orchestrator before running.
 
 ## Steps
 
 ### 1. Discover sources
 
 ```bash
-$SCRIPT_RUNNER "$SKILL_DIR/scripts/discover-sources$SCRIPT_EXT" <SOURCES>
-$SCRIPT_RUNNER "$SKILL_DIR/scripts/discover-sources$SCRIPT_EXT" <SOURCES> json > sources.json
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/discover-sources$SCRIPT_EXT" "$SOURCES"
 ```
 
-This returns a categorized file list: project files, codebase files, features, quick tasks. The JSON form gives fine-grained access.
+Done when the summary accounts for every markdown file under `$SOURCES` (each file appears in exactly one category).
 
-### 2. Generate site
+### 2. Generate the site skeleton
 
 ```bash
-$SCRIPT_RUNNER "$SKILL_DIR/scripts/generate-mkdocs$SCRIPT_EXT" "<PROJECT_NAME>" <SOURCES>
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/generate-mkdocs$SCRIPT_EXT" "$PROJECT_NAME" "$SOURCES"
 ```
 
-### 3. Generate landing page
+The script copies the specs tree into `docs/specs/` and writes `mkdocs.yml` (project root, `docs_dir: docs`) with the full nav. Done when `mkdocs.yml` exists and its nav contains one section per non-empty top-level spec directory.
 
-Choose the landing page template based on audience (from onboarding):
+### 3. Generate the landing page
 
 ```bash
-$SCRIPT_RUNNER "$SKILL_DIR/scripts/generate-index$SCRIPT_EXT" "<PROJECT_NAME>" <AUDIENCE> <SOURCES>/features
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/generate-index$SCRIPT_EXT" "$PROJECT_NAME" "$AUDIENCE" docs/specs/features
 ```
+
+Done when `docs/index.md` exists and every link target in it resolves to a file under `docs/`.
 
 ### 4. Verify
 
 ```bash
-cd docs && mkdocs build --strict 2>&1
+mkdocs build --strict
 ```
 
-Fix any warnings (broken links, missing pages, bad YAML).
+Run from the project root. Done when the build exits 0. Fix warnings (broken links, missing pages, bad YAML) and re-run until clean.
 
 ### 5. Serve locally (optional)
 
 ```bash
-cd docs && mkdocs serve
+mkdocs serve
 ```
 
 ## Output
 
 Return to the orchestrator:
 - Path to `docs/` directory
-- Build was clean (yes/no + warnings)
+- Build clean (yes/no + remaining warnings)
 - Serve URL if applicable

@@ -1,25 +1,35 @@
 # Swagger/OpenAPI Builder — Subagent
 
-You are a specialized subagent for generating OpenAPI 3.0 specifications and Swagger UI documentation from markdown spec files.
+Generate an OpenAPI 3.0 specification and Swagger UI page from markdown API specs. Variables and conventions: [CONTEXT.md](../CONTEXT.md).
 
-## Your task
+## Prerequisites
 
-Given a set of markdown files containing API specifications, you will:
+```bash
+node --version 2>/dev/null || echo "node missing — validation will be skipped; see CONTEXT.md §Dependencies"
+```
 
-1. Scan each file for API endpoint definitions using these heuristics:
-   - Headings like `### GET /api/users` → method and path
-   - `### POST /api/users` → create operations
-   - `**Request:**` followed by a JSON block → request body schema
-   - `**Response:**` followed by a JSON block → response schema
-   - `**Parameters:**` followed by a table → query/path parameters
-   - `**Headers:**` followed by a list → request headers
+If any variable from CONTEXT.md is unset, ask the orchestrator before running.
 
-2. Generate an `openapi.yml` file following OpenAPI 3.0.3 spec:
+## Steps
+
+### 1. Scan sources
+
+Scan every file under `$SOURCES` for endpoint definitions:
+
+- Headings like `### GET /api/users` → method and path (cover **all** HTTP methods and **all** heading levels)
+- `**Request:**` followed by a JSON block → request body schema
+- `**Response:**` followed by a JSON block → response schema
+- `**Parameters:**` followed by a table → query/path parameters
+- `**Headers:**` followed by a list → request headers
+
+Keep a list of every endpoint found. Done when every file has been scanned and every endpoint is on the list.
+
+### 2. Generate `swagger-ui/openapi.yml`
 
 ```yaml
 openapi: "3.0.3"
 info:
-  title: "<Project Name> — API Specs"
+  title: "{{PROJECT_NAME}} — API Specs"
   version: "1.0.0"
   description: "Auto-generated from spec-driven development markdowns"
 servers:
@@ -40,16 +50,32 @@ paths:
                 type: object
 ```
 
-3. If a markdown file doesn't contain structured API definitions, flag it to the orchestrator and suggest creating a skeleton OpenAPI spec.
+Fill `servers` from user input if the base URL is known; otherwise use `https://api.example.com` and flag it in the output. Done when **every endpoint from the step-1 list appears in `paths:`**.
 
-4. Generate a Swagger UI HTML page using the template at `templates/swagger-ui.html`:
-   - Replace `{{PROJECT_NAME}}` with the project name
-   - Replace `{{OPENAPI_YML}}` with the path to `openapi.yml`
+If a file contains no structured API definitions, flag it to the orchestrator with a suggested skeleton spec.
+
+### 3. Validate
+
+```bash
+npx @redocly/cli lint swagger-ui/openapi.yml
+```
+
+If `node` is unavailable, at minimum confirm the YAML parses and `paths` is non-empty. Done when validation reports no errors (warnings tolerable — list them).
+
+### 4. Generate the Swagger UI page
+
+From the template at `$SKILL_DIR/templates/swagger-ui.html`, write `swagger-ui/index.html`:
+
+- Replace `{{PROJECT_NAME}}` with `$PROJECT_NAME`
+- Replace `{{OPENAPI_YML}}` with `openapi.yml` (same directory)
+
+Done when `swagger-ui/` contains both `index.html` and `openapi.yml`.
 
 ## Output
 
 Return to the orchestrator:
-- Path to generated `openapi.yml`
-- Path to generated Swagger UI HTML
+- Path to `swagger-ui/` (deployable directory)
 - List of endpoints discovered
-- Any files that were skipped (with reason)
+- Files skipped (with reason)
+- Validation result (clean / warnings / skipped — why)
+- Placeholder values still in effect (e.g. default server URL)
