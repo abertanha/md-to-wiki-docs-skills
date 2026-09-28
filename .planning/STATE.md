@@ -1,6 +1,13 @@
 ---
-gsd_state_version: '1.0'  # placeholder; syncStateFrontmatter overwrites on first state.* call
+gsd_state_version: "1.0"
+current_phase: 1
+current_phase_name: Contrato & Golden Fixtures
 status: planning
+stopped_at: Phase 1 context gathered
+last_updated: "2026-09-28T19:07:05.849Z"
+last_activity: 2026-09-28
+last_activity_desc: Roadmap criado (4 fases, 9/9 requisitos mapeados)
+state_head: b0d3cb35833cc1754b3c705635e8448b614380c4
 progress:
   total_phases: 4
   completed_phases: 0
@@ -79,6 +86,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-28
-Stopped at: Roadmap criado a partir de REQUIREMENTS.md + research/SUMMARY.md; aguardando aprovação e `/gsd:plan-phase 1`
-Resume file: None
+Last session: 2026-09-28T19:07:05.832Z
+Stopped at: Phase 1 context gathered
+Resume file: .planning/phases/01-contrato-golden-fixtures/01-CONTEXT.md
