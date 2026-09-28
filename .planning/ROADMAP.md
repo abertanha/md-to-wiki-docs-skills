@@ -30,7 +30,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Golden fixtures `en` congelados por geminho — `.sh` e `.ps1` capturados separadamente da cadeia atual não modificada, com tree de teste contendo diretório acentuado e token de data mascarado e documentado
   4. Harness de diff (`diff -r`/`cmp`) commitado roda sem engines (host sem mkdocs/pandoc) e valida os goldens como idênticos à cadeia atual
   5. Inventário de chrome (4 camadas × 5 superfícies, arquivo:linha) e decisões de escopo registradas no contrato: política fail-closed de chave ausente, localização e formato do catálogo, escopo Swagger (título + `lang`, limite upstream documentado) e datas ISO 8601 nos dois idiomas
-**Plans**: TBD
+
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Tracer (walking skeleton): árvore de fixture commitada + harness `tests/regress.sh` + goldens `.sh` engine-less com máscara de data e regime SKIPPED/exit 3
+- [ ] 01-02-PLAN.md — Contrato `OUTPUT_LANG` (CONTEXT.md + onboarding) + inventário de chrome `docs/chrome-inventory.md`
+- [ ] 01-03-PLAN.md — Dev-deps pwsh/pandoc (sudo com o humano) + captura dos goldens `.ps1`/DokuWiki + regressão completa exit 0
 
 ### Phase 2: Catálogo de Labels & Cadeia MkDocs/index
 **Goal**: Todo chrome de script/template da cadeia MkDocs/index resolve por chave contra um catálogo externo — a fonte única prova-se byte-estável no checkpoint `en` antes de qualquer tradução existir
