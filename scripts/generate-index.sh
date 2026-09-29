@@ -160,6 +160,8 @@ if [ "$AUDIENCE" = "developer" ] || [ "$AUDIENCE" = "developers" ] || [ "$AUDIEN
   [ -n "$section" ] && { printf '## %s\n\n%s\n\n' "${section_development}" "$section" >> "$OUTPUT"; }
 fi
 
-printf -- "---\n*${generated_by}*\n" "$(date +%Y-%m-%d)" >> "$OUTPUT"
+today="$(date +%Y-%m-%d)"
+message="${generated_by/\%s/$today}"
+printf -- '---\n*%s*\n' "$message" >> "$OUTPUT"
 
 echo "Generated $OUTPUT"
