@@ -20,6 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Contrato & Golden Fixtures
+
 **Goal**: O idioma de saída vira parâmetro de contrato (`OUTPUT_LANG`, default `pt-br`) e o comportamento `en` atual fica congelado em golden fixtures por geminho — decisões e rede de segurança antes de qualquer código depender delas
 **Mode:** mvp
 **Depends on**: Nothing (first phase)
@@ -34,11 +35,15 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
+**Wave 1**
 - [ ] 01-01-PLAN.md — Tracer (walking skeleton): árvore de fixture commitada + harness `tests/regress.sh` + goldens `.sh` engine-less com máscara de data e regime SKIPPED/exit 3
 - [ ] 01-02-PLAN.md — Contrato `OUTPUT_LANG` (CONTEXT.md + onboarding) + inventário de chrome `docs/chrome-inventory.md`
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 01-03-PLAN.md — Dev-deps pwsh/pandoc (sudo com o humano) + captura dos goldens `.ps1`/DokuWiki + regressão completa exit 0
 
 ### Phase 2: Catálogo de Labels & Cadeia MkDocs/index
+
 **Goal**: Todo chrome de script/template da cadeia MkDocs/index resolve por chave contra um catálogo externo — a fonte única prova-se byte-estável no checkpoint `en` antes de qualquer tradução existir
 **Mode:** mvp
 **Depends on**: Phase 1
@@ -48,9 +53,11 @@ Plans:
   2. Checkpoint duro: `OUTPUT_LANG=en` na cadeia MkDocs/index reproduz o golden fixture da Phase 1 byte-idêntico (diff vazio com máscara de data) — barreira de commit antes de qualquer pt-br
   3. Chave ausente no catálogo ativo interrompe a geração com erro nomeando a chave — verificado removendo uma chave e observando o fail (fail-closed, sem fallback silencioso)
   4. Labels derivados de nomes de arquivo do usuário saem passthrough — nenhuma transformação de case em runtime, chrome fora do sed de title-case; paths, anchors e filenames gerados permanecem idênticos aos atuais
+
 **Plans**: TBD
 
 ### Phase 3: pt-br nas 5 Superfícies
+
 **Goal**: Com `OUTPUT_LANG=pt-br`, as cinco superfícies publicáveis (MkDocs index+nav, GitHub Wiki, DokuWiki, PDF, Swagger UI) emitem chrome 100% PT-BR com o locale projetado em cada consumer — zero saída mista
 **Mode:** mvp
 **Depends on**: Phase 2
@@ -60,9 +67,11 @@ Plans:
   2. Gate grep por superfície (com allowlist do glossário) não encontra nenhum rótulo `en` na saída pt-br — zero saída mista
   3. `theme.language: pt-BR` aparece no mkdocs.yml somente com pt-br (com `en` a chave é omitida — saída en inalterada); o comando pandoc do PDF carrega `-M lang=pt-BR -M toc-title=Sumário` somente no branch pt-br, verificado por assert estrutural sem engines; o HTML do Swagger ganha `lang`
   4. A tree de teste com diretório acentuado (`features/autenticação/`) atravessa a cadeia pt-br sem corrupção de bytes — labels derivados preservados, filenames e anchors intactos
+
 **Plans**: TBD
 
 ### Phase 4: Gêmeos PowerShell, Prosa & Release
+
 **Goal**: O idioma alcança o host Windows (gêmeos `.ps1` consumindo o mesmo catálogo com disciplina de encoding) e a prosa dos agents (glossário anti-calque com gate verificável); o milestone fecha com a regressão `en` válida por geminho e a nota de release do default flip
 **Mode:** mvp
 **Depends on**: Phase 3
@@ -73,6 +82,7 @@ Plans:
   3. Glossário anti-calque no `CONTEXT.md` rege a prosa dos agents: dispatch prompts e `agents/format-*.md` carregam a linha de `OUTPUT_LANG` + glossário inline (referência consultada sob demanda é ignorada sob pressão); nouns canônicos de seção vêm do mesmo mapa de labels
   4. Denylist de calques verificável por grep roda como critério de completion — zero ocorrência de calques ("deployar", "printar", "commitar", …) na prosa dos agents e na saída pt-br
   5. Release: `tests/regress.sh` wired no fluxo, README/README.pt-BR e rubric delta atualizados, nota de release documentando o default flip e que `OUTPUT_LANG=en` preserva o comportamento anterior; execução pt-br end-to-end num host com engines
+
 **Plans**: TBD
 
 ## Progress
