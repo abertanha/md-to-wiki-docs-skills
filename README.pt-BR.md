@@ -80,6 +80,8 @@ md-to-wiki/
 │   ├── to-dokuwiki.ps1       # (PowerShell)
 │   └── prompt-tests.sh       # Testes de roteamento e execução (excluído do git)
 ├── templates/                # Templates reutilizáveis
+│   ├── lang/
+│   │   └── en.lang           # Catálogo EN de rótulos de chrome (pt-br.lang chega na Phase 3)
 │   └── swagger-ui.html       # Wrapper Swagger UI
 └── agents/                   # Subagentes carregados sob demanda
     ├── onboarding.md         # Entrevista de descoberta + detecção de SO
