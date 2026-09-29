@@ -161,7 +161,8 @@ if [ "$AUDIENCE" = "developer" ] || [ "$AUDIENCE" = "developers" ] || [ "$AUDIEN
 fi
 
 today="$(date +%Y-%m-%d)"
-message="${generated_by/\%s/$today}"
+generated_by_line="${generated_by}"
+message="${generated_by_line/\%s/$today}"
 printf -- '---\n*%s*\n' "$message" >> "$OUTPUT"
 
 echo "Generated $OUTPUT"
