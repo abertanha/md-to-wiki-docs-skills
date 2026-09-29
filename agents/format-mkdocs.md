@@ -31,10 +31,12 @@ The script copies the specs tree into `docs/specs/` and writes `mkdocs.yml` (pro
 ### 3. Generate the landing page
 
 ```bash
-$SCRIPT_RUNNER "$SKILL_DIR/scripts/generate-index$SCRIPT_EXT" "$PROJECT_NAME" "$AUDIENCE" docs/specs/features
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/generate-index$SCRIPT_EXT" "$PROJECT_NAME" "$AUDIENCE" "$OUTPUT_LANG" docs/specs/features
 ```
 
 Done when `docs/index.md` exists and every link target in it resolves to a file under `docs/`.
+
+`OUTPUT_LANG` comes from the dispatch prompt, never from the environment — same mechanism as `AUDIENCE`. An unknown or missing value stops the script with the list of supported languages (`en`, `pt-br`); there is no silent fallback.
 
 ### 4. Verify
 

@@ -8,6 +8,8 @@ Este documento É o mapa de todo o chrome publicado da skill: cada linha liga a 
 
 Convenções: valor em code span = texto byte-exato emitido hoje; sítios separados por `·`; divergências entre gêmeos `.sh`/`.ps1` estão **marcadas**, nunca silenciadas. Idiomas: prosa em PT-BR, valores `en` em inglês (são a saída de hoje).
 
+**Fronteira label/markup (decidida na Phase 2).** O valor de cada chave carrega o TEXTO DO RÓTULO. O prefixo `## ` de heading, os separadores de tabela (`|---------|`) e os pipes de coluna são MARKUP: ficam no format string do `printf`/heredoc do gerador, nunca dentro do valor da chave. Exceção deliberada: as chaves de corpo de seção (`index_architecture_body`, `index_getting_started_body`) e `generated_by` carregam a FRASE INTEIRA — link markdown e URL incluídos — porque frase inteira é a unidade de tradução; fragmentar uma frase em torno de um link é anti-padrão de i18n. Os paths dentro desses links são estrutura e permanecem idênticos em qualquer idioma. `templates/lang/en.lang` é a materialização deste mapa: cada chave da Camada 1 listada abaixo tem uma linha correspondente lá, com o mesmo valor verbatim.
+
 ## Camada 1 — cadeia `.sh` (chrome congelável por golden)
 
 Superfícies cobertas: `index.md` + `mkdocs.yml` + nav, livro-PDF (fallback markdown), DokuWiki README.
