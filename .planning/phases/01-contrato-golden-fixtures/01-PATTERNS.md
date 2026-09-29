@@ -11,7 +11,7 @@ Todos os analogs citados below são fonte git-TRACKED (verificado: `git ls-files
 | New/Modified File | Role | Data Flow | Closest Analog | Match Quality |
 |-------------------|------|-----------|----------------|---------------|
 | `tests/regress.sh` | test (harness bash) | batch (captura + diff) | `scripts/to-dokuwiki.sh` (skeleton + gate) + `scripts/discover-sources.sh` (dispatch de modo) + `scripts/to-pdf.sh` (cascata de engines/fallback) | role-adjacent (nenhum teste existe; estilo bash exact) |
-| `tests/fixtures/tree/.specs/**` (6 .md replicados + `features/autenticação/spec.md`) | test fixture (dados de entrada) | file-I/O | — (fonte: `/tmp/mdw-sr3/.specs`, ainda presente no host; molde de layout: `CONTEXT.md:32-38`) | none (new frontier) |
+| `tests/fixtures/tree/.specs/**` (6 .md replicados + `features/autenticação/spec.md`) | test fixture (dados de entrada) | file-I/O | — (fonte: `/tmp/mdw-sr3/.specs`, presente no host em 2026-09-28 e **ausente desde 2026-09-29** — reconstruir pelo inventário do 01-RESEARCH.md §Code Examples com checkpoint humano, branch da precondition da Task 1 do 01-01; molde de layout: `CONTEXT.md:32-38`) | none (new frontier) |
 | `tests/fixtures/manifest.md` | config/doc (registro de captura) | static | `docs/adr/0003-mkdocs-chain-repair.md` (header + formato de registro) | role-match |
 | `tests/fixtures/golden-sh/**` | test fixture (golden gerado) | transform (saída congelada) | — (gerado só pelo modo captura; nunca escrito à mão) | none (generated artifact) |
 | `tests/fixtures/golden-ps1/**` | test fixture (golden gerado) | transform (saída congelada) | — (idem; baseline pwsh 7 / Linux, sem BOM, LF) | none (generated artifact) |
@@ -250,7 +250,7 @@ Harness estende: dependência dev-only ausente = `SKIPPED` + exit 3 (parcial ≠
 
 | File | Role | Data Flow | Reason |
 |------|------|-----------|--------|
-| `tests/fixtures/tree/.specs/**` | test fixture | file-I/O | Nenhum fixture commitado existe no repo. Fonte da verdade: `/tmp/mdw-sr3/.specs` (VERIFICADO ainda presente no host em 2026-09-28: 6 arquivos `project/PROJECT.md`, `project/ROADMAP.md`, `codebase/ARCHITECTURE.md`, `features/login/{spec,design}.md`, `quick/fix-nav/spec.md`) + `features/autenticação/spec.md` novo. Molde de layout: `CONTEXT.md:32-38` §Source taxonomy. Invariantes: conteúdo 100% ASCII, zero datas ISO (a máscara só toca chrome). |
+| `tests/fixtures/tree/.specs/**` | test fixture | file-I/O | Nenhum fixture commitado existe no repo. Fonte da verdade: `/tmp/mdw-sr3/.specs` (verificado no host em 2026-09-28; **ausente desde 2026-09-29 — reconstruir pelo inventário do 01-RESEARCH.md §Code Examples, com checkpoint humano**: 6 arquivos `project/PROJECT.md`, `project/ROADMAP.md`, `codebase/ARCHITECTURE.md`, `features/login/{spec,design}.md`, `quick/fix-nav/spec.md`) + `features/autenticação/spec.md` novo. Molde de layout: `CONTEXT.md:32-38` §Source taxonomy. Invariantes: conteúdo 100% ASCII, zero datas ISO (a máscara só toca chrome). |
 | `tests/fixtures/golden-sh/**` | test fixture (golden) | transform | Artefato gerado pelo modo `--capture` do harness — por definição não tem analog escrito à mão. Warts de byte a preservar (documentados, nunca "corrigidos"): `repo_url: ` com espaço trailing quando o cwd é git-free (`generate-mkdocs.sh:45` com variável vazia) e linha em branco final do heredoc. |
 | `tests/fixtures/golden-ps1/**` | test fixture (golden) | transform | Idem, baseline pwsh 7/Linux (UTF-8 sem BOM, LF — verificar `head -c 3` no primeiro passo da captura). Divergências entre gêmeos são o ponto: golden próprio por geminho, nunca combinado. |
 
@@ -261,5 +261,5 @@ Para os 3 acima, o planner usa `01-RESEARCH.md` (§Code Examples tem a estrutura
 **Analog search scope:** `scripts/` (12 arquivos), `agents/` (8), `docs/` (adr + rubric), `templates/` (2), raiz (`CONTEXT.md`, `SKILL.md`), `.claude/CLAUDE.md` (seed do glossário, linhas 49-77). Projeto não tem `tests/`, nem framework de teste, nem fixture commitado — confirmado por `ls` + `git ls-files`.
 **Files scanned:** 28 tracked (15 lidos por inteiro nesta sessão; os demais cobertos pela leitura completa da research)
 **Tracked-source gate:** todos os 15 analogs citados verificados com `git ls-files -- <path>` = 1 (tracked); nenhum caminho de mirror emitido.
-**Verificações de suporte:** exit codes da cadeia = só 0/1 (exit 3 livre para SKIPPED); `/tmp/mdw-sr3` ainda existe; seed do glossário em `.claude/CLAUDE.md:49-77`; `tests/` inexistente.
+**Verificações de suporte:** exit codes da cadeia = só 0/1 (exit 3 livre para SKIPPED); `/tmp/mdw-sr3` existia na data do mapeamento (2026-09-28; verificado ausente em 2026-09-29 — reconstrução via inventário); seed do glossário em `.claude/CLAUDE.md:49-77`; `tests/` inexistente.
 **Pattern extraction date:** 2026-09-28

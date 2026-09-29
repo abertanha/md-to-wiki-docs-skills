@@ -39,7 +39,7 @@ None — discussion stayed within phase scope.
 |----|-------------|------------------|
 | PARAM-01 | `OUTPUT_LANG` é o único parâmetro de idioma (`en` \| `pt-br`, default `pt-br`), atribuído no onboarding e transmitido por dispatch prompt — como `AUDIENCE`, nunca env var | Padrão `AUDIENCE` mapeado com âncoras exatas (`agents/onboarding.md:9-12` pergunta, `:47` lista de retorno; `CONTEXT.md:9-18` tabela Variables, `:7` regra de transmissão). Nenhum env var de idioma existe hoje; único env var da cadeia é `MDW_INDEX_OUT` (`generate-index.sh:19`), pré-existente e fora do escopo |
 | PARAM-02 | Locale normalizado na entrada (`pt-br` ≡ `pt-BR`) e projetado por consumidor; valor desconhecido interrompe com erro listando os suportados | Decisão já travada; research confirma as formas canônicas por consumidor e o padrão fail-closed existente (`to-dokuwiki.sh:11-12` — erro nomeando o problema + como resolver). Contrato registra; enforcement nas scripts é Phase 2+ |
-| QUAL-02 | Golden fixtures `en` congelados por geminho (.sh/.ps1) + harness de diff sem engines; `OUTPUT_LANG=en` reproduz a saída atual byte-idêntica (token de data mascarado e documentado) | Fixture `/tmp/mdw-sr3` existe e foi inventariada (14 arquivos); cadeia executada 2× neste host — byte-idêntica após máscara de data; 3 sítios datados confirmados verbatim; armadilhas de locale/cwd/git-remote/BOM catalogadas com evidência |
+| QUAL-02 | Golden fixtures `en` congelados por geminho (.sh/.ps1) + harness de diff sem engines; `OUTPUT_LANG=en` reproduz a saída atual byte-idêntica (token de data mascarado e documentado) | Fixture `/tmp/mdw-sr3` existia na research e foi inventariada (14 arquivos; **ausente desde 2026-09-29** — reconstrução pelo inventário, Pitfall 10); cadeia executada 2× neste host — byte-idêntica após máscara de data; 3 sítios datados confirmados verbatim; armadilhas de locale/cwd/git-remote/BOM catalogadas com evidência |
 </phase_requirements>
 
 ## Project Constraints (from CLAUDE.md)
@@ -57,13 +57,13 @@ Diretivas acionáveis extraídas de `.claude/CLAUDE.md` que o planner deve honra
 
 ## Summary
 
-A fase é executável neste host **como está**, com duas decisões de planejamento pendentes e uma dependência de instalação. A fixture validada `/tmp/mdw-sr3` **existe** (14 arquivos: 6 specs-fonte em `.specs/`, mirror em `docs/specs/`, `docs/index.md` e `mkdocs.yml` de uma captura anterior com `AUDIENCE=developer`) — a réplica para `tests/fixtures/` é direta e deve acrescentar `features/autenticação/spec.md`. A cadeia `.sh` atual é **determinística run-to-run** — verificada por execução dupla neste host com `LC_ALL=C.UTF-8` e máscara de data: diff vazio. Os 3 sítios datados confirmam verbatim as âncoras do CONTEXT.md (`generate-index.sh:105`, `generate-index.ps1:84`, `to-pdf.ps1:17,21`) e **nenhum outro sítio de data existe** (grep em todos os scripts; conteúdo da fixture é 100% ASCII sem datas ISO — a máscara só toca chrome).
+A fase é executável neste host **como está** — as decisões de planejamento abertas na research (Q1-Q4) foram resolvidas (D-09..D-12 no `01-CONTEXT.md`); resta a instalação dev-only de pwsh/pandoc. A fixture validada `/tmp/mdw-sr3` **existia na research** (14 arquivos: 6 specs-fonte em `.specs/`, mirror em `docs/specs/`, `docs/index.md` e `mkdocs.yml` de uma captura anterior com `AUDIENCE=developer`), mas foi **verificada AUSENTE em 2026-09-29** (Pitfall 10 confirmado: `/tmp` é volátil). O caminho vivo da execução é a reconstrução da tree a partir do inventário do §Code Examples com checkpoint humano — exatamente o branch da precondition da Task 1 do plano 01-01; os invariantes de D-05 (nav 5 seções, conteúdo ASCII, zero datas ISO, diretório acentuado) sobrevivem à reconstrução, e a réplica acrescenta `features/autenticação/spec.md`. A cadeia `.sh` atual é **determinística run-to-run** — verificada por execução dupla neste host com `LC_ALL=C.UTF-8` e máscara de data: diff vazio. Os 3 sítios datados confirmam verbatim as âncoras do CONTEXT.md (`generate-index.sh:105`, `generate-index.ps1:84`, `to-pdf.ps1:17,21`) e **nenhum outro sítio de data existe** (grep em todos os scripts; conteúdo da fixture é 100% ASCII sem datas ISO — a máscara só toca chrome).
 
 Porém, a realidade engine-less do host cria **duas assimetrias que o plano precisa endereçar**: (1) `to-dokuwiki.sh`/`.ps1` fazem `exit 1` sem pandoc — **não existe fallback** para a superfície DokuWiki, logo o golden dessa superfície exige pandoc instalado como dependência de dev (candidato apt: 3.1.3) sob o mesmo regime D-03/D-04 do pwsh (SKIPPED + exit 3 quando ausente); (2) `to-pdf.ps1` **não tem fallback markdown** (`exit 1` sem engines, linha 60-64) — o único artefato engine-less da perna `.ps1` é `specs-book.md`, nominalmente um intermediário que D-01 exclui; a captura desse geminho precisa de uma exceção explícita e documentada (o rodapé datado que o CONTEXT.md quer congelar vive exatamente ali). Os gêmeos `.ps1` divergem substancialmente dos `.sh` (path de saída `docs/mkdocs.yml` vs raiz, nav não-recursivo, links quebrados por `Split-Path -NoQualifier` no Linux, URL `opencode.ai` no rodapé) — divergências que a captura por geminho congela como estão, exatamente como D-01 determina.
 
 A descoberta de maior alcance para o harness: **o locale do host muda bytes da saída atual**. O sed de title-case (`sed 's/-/ /g; s/\b\(.\)/\u\1/g'`, `generate-index.sh:79`, `generate-mkdocs.sh:29,35`) corrompe `autenticação` em `LC_ALL=C` (byte `c3`→`ff` + `O` final maiúsculo — reproduzido) e sai limpo em locale UTF-8. Logo, captura e diff **precisam pinar `LC_ALL=C.UTF-8`** (presente neste host, portável entre GNU/Linux, e também fixa a collation do `sort` que ordena nav e listas). Igualmente crítico: o cwd de captura **precisa estar fora de qualquer repositório git** — este repo tem `origin`, e `generate-mkdocs.sh:18` vazaria a URL SSH para dentro do `mkdocs.yml` golden.
 
-**Primary recommendation:** Estruturar a fase em 4 blocos sequenciais — (1) contrato (`CONTEXT.md` + `onboarding.md` + decisões de escopo D-08), (2) réplica da tree + inventário de chrome com âncoras arquivo:linha, (3) instalação dev-only de pwsh (+pandoc, decisão pendente) e captura dos goldens por geminho com locale/cwd/argv pinados e manifest documentado, (4) harness `tests/regress.sh` com máscara simétrica de data e regime SKIPPED exit 3.
+**Primary recommendation:** Estruturar a fase em 4 blocos sequenciais — (1) contrato (`CONTEXT.md` + `onboarding.md` + decisões de escopo D-08), (2) réplica da tree + inventário de chrome com âncoras arquivo:linha, (3) instalação dev-only de pwsh e pandoc (ambos decididos: D-03/D-09) e captura dos goldens por geminho com locale/cwd/argv pinados e manifest documentado, (4) harness `tests/regress.sh` com máscara simétrica de data e regime SKIPPED exit 3.
 
 ## Architectural Responsibility Map
 
@@ -73,7 +73,7 @@ A descoberta de maior alcance para o harness: **o locale do host muda bytes da s
 | Normalização de locale + projeção por consumidor | Contrato (decisão declarada) | Cadeia de scripts (enforcement na Phase 2+) | Phase 1 só registra a decisão; nenhum script consumidor existe ainda |
 | Captura dos goldens `.sh` | Harness (`tests/regress.sh` modo captura) | Cadeia `.sh` atual não modificada | O golden congela a cadeia como está; o harness é o instrumento |
 | Captura dos goldens `.ps1` | Harness + `pwsh` dev-only (D-03) | — | Baseline PS7/Linux documentado; PS 5.1 é gap conhecido |
-| Captura do golden DokuWiki | Harness + `pandoc` dev-only (decisão pendente) | — | `to-dokuwiki.*` não tem fallback; sem pandoc a perna não produz bytes |
+| Captura do golden DokuWiki | Harness + `pandoc` dev-only (decidido: D-09) | — | `to-dokuwiki.*` não tem fallback; sem pandoc a perna não produz bytes |
 | Dif de regressão engine-less | Harness (`diff -r`/`cmp` + máscara) | — | Critério 4 do roadmap: roda em host sem mkdocs/pandoc |
 | Inventário de chrome | `docs/chrome-inventory.md` (novo artefato de dados) | Contrato aponta para o mapa (D-08) | Contrato fica enxuto; o mapa é referência de implementação da Phase 2 |
 | Chrome em prosa de agent (GitHub Wiki, openapi.yml) | Camada 4 (`agents/format-*.md`) | — | Não é capturável por golden (autoria de LLM em runtime); só inventário |
@@ -97,7 +97,7 @@ Nenhuma biblioteca nova — a fase é bash + coreutils + markdown (constraint de
 | Tool | Estado no host | Papel | Instalação |
 |------|----------------|-------|------------|
 | `pwsh` (PowerShell 7) | **AUSENTE** | Captura dos goldens `.ps1` | [CITED: learn.microsoft.com/powershell/scripting/install/install-ubuntu] Ubuntu 24.04 suportado até 2029-05-31; preferido: repo PMC (`wget https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb` + `sudo dpkg -i` + `sudo apt-get install -y powershell`); alternativa: `.deb` universal do GitHub releases (7.6.6 LTS na doc de 2026-08-11); tar.gz binário documentado em install-other-linux#binary-archives (não exige sudo). Snap existe mas **não** é método suportado pela Microsoft. **sudo exige senha neste host → passo com o usuário** |
-| `pandoc` | **AUSENTE** (candidato apt `3.1.3+ds-2`) | Captura do golden DokuWiki (perna `.sh` e `.ps1`) | `sudo apt install pandoc` — decisão pendente (ver Open Questions Q1) |
+| `pandoc` | **AUSENTE** (candidato apt `3.1.3+ds-2`) | Captura do golden DokuWiki (perna `.sh` e `.ps1`) | `sudo apt install pandoc` — decidido: dev-only (D-09, resolve a Q1) |
 
 ### Alternatives Considered
 
@@ -114,7 +114,7 @@ Nenhuma biblioteca nova — a fase é bash + coreutils + markdown (constraint de
 wget -q https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
 sudo apt-get update && sudo apt-get install -y powershell
-# pandoc (se Q1 aprovada)
+# pandoc (decidido — dev-only, D-09)
 sudo apt install pandoc
 ```
 
@@ -127,7 +127,7 @@ sudo apt install pandoc
 | Package | Registry/Canal | Idade | Verdict | Disposition |
 |---------|----------------|-------|---------|-------------|
 | `powershell` (7.6.x) | Microsoft PMC / GitHub releases (PowerShell/PowerShell) | projeto maduro, LTS vigente | OK (doc oficial Microsoft Learn verificada) | Approved — dev-only, passo sudo com o usuário |
-| `pandoc` (3.1.3+ds-2) | Ubuntu noble archive (jgm/pandoc upstream) | projeto maduro | OK (candidato do archive oficial Ubuntu) | Approved — dev-only, pendente decisão Q1 |
+| `pandoc` (3.1.3+ds-2) | Ubuntu noble archive (jgm/pandoc upstream) | projeto maduro | OK (candidato do archive oficial Ubuntu) | Approved — dev-only (decidido: D-09) |
 
 **Packages removed due to [SLOP] verdict:** none
 **Packages flagged as suspicious [SUS]:** none
@@ -189,7 +189,7 @@ tests/
     ├── golden-sh/              # 5 superfícies da cadeia .sh
     │   ├── mkdocs/             #   mkdocs.yml + docs/specs/** + docs/index.md
     │   ├── pdf/                #   specs-book.pdf (fallback markdown — cópia byte do book)
-    │   ├── dokuwiki/           #   README.md (+ data/pages/** se Q1 aprovada)
+    │   ├── dokuwiki/           #   README.md + data/pages/** (pandoc dev-only, D-09)
     │   └── swagger/            #   index.html renderado (D-02)
     └── golden-ps1/             # mesmas superfícies, geminho .ps1 (capturado sob pwsh 7)
         ├── mkdocs/             #   docs/mkdocs.yml (path divergente do .sh — congela como está)
@@ -349,13 +349,13 @@ Contraste no geminho: [VERIFIED: scripts/generate-mkdocs.ps1:23] `-replace '\b\w
 ### Pitfall 6: DokuWiki não tem fallback — perna engine-dependente
 
 **What goes wrong:** [VERIFIED: scripts/to-dokuwiki.sh:10-13] `if ! command -v pandoc &>/dev/null; then echo "ERROR: pandoc not found. Install it: sudo apt install pandoc"; exit 1; fi` — o gate vem **antes** da escrita do README; sem pandoc a perna produz só um `data/pages/` vazio e `exit 1`. O `.ps1` idem ([VERIFIED: scripts/to-dokuwiki.ps1:13-17]).
-**How to avoid:** decisão Q1 — pandoc como dev-dep (regime D-03) para a captura; no harness, `command -v pandoc` → roda ou SKIPPED (exit 3).
+**How to avoid:** Q1 resolvida (D-09) — pandoc como dev-dep (regime D-03) para a captura; no harness, `command -v pandoc` → roda ou SKIPPED (exit 3).
 **Warning signs:** golden DokuWiki inexistente ou perna sempre SKIPPED.
 
 ### Pitfall 7: `to-pdf.ps1` não tem fallback markdown — o golden `.ps1` da superfície PDF vem do intermediário
 
 **What goes wrong:** sem engines, [VERIFIED: scripts/to-pdf.ps1:60-64] `if (-not $found) { Write-Output "ERROR: Neither weasyprint nor wkhtmltopdf found."; …; exit 1 }` — o `$Output` (o "publicável") **nunca é criado**. O único artefato engine-less é `specs-book.md` (linha 33), que D-01 exclui como intermediário.
-**How to avoid:** decisão Q2 — capturar `specs-book.md` como golden da perna `.ps1` da superfície PDF, com a exceção documentada no manifest (é o único lugar onde o rodapé datado que o CONTEXT.md manda congelar existe).
+**How to avoid:** Q2 resolvida (D-10) — capturar `specs-book.md` como golden da perna `.ps1` da superfície PDF, com a exceção documentada no manifest (é o único lugar onde o rodapé datado que o CONTEXT.md manda congelar existe).
 **Warning signs:** golden `.ps1` de PDF com conteúdo idêntico ao do `.sh` (estariam erradamente copiados — os formatos divergem: `\newpage` vs `---`, headings por arquivo só no `.sh`).
 
 ### Pitfall 8: `generate-index.ps1` sob pwsh/Linux — args e links quebrados (congelar como está, mas verificar na captura)
@@ -370,12 +370,12 @@ Contraste no geminho: [VERIFIED: scripts/generate-mkdocs.ps1:23] `-replace '\b\w
 
 ### Pitfall 10: tempo de vida de `/tmp`
 
-**What goes wrong:** `/tmp` é volátil (tmpfs/limpeza de reboot) — a fixture validada `/tmp/mdw-sr3` pode sumir entre esta research e a execução da fase.
+**What goes wrong:** `/tmp` é volátil (tmpfs/limpeza de reboot) — a fixture validada `/tmp/mdw-sr3` pode sumir entre esta research e a execução da fase. **Confirmado: verificada AUSENTE em 2026-09-29** — a reconstrução pelo inventário + checkpoint humano é o caminho vivo da execução (branch da precondition da Task 1 do plano 01-01).
 **How to avoid:** a réplica para `tests/fixtures/tree/` é o **primeiro task** do plano (é cópia, não regeneração — a estrutura está inventariada abaixo). Se `/tmp/mdw-sr3` já não existir na execução, a tree é reconstruível a partir do inventário desta research (estrutura completa + conteúdo ASCII simples), com checkpoint humano.
 
 ## Code Examples
 
-### Inventário da fixture `/tmp/mdw-sr3` (verificado por `find`, 2026-09-28 — 14 arquivos)
+### Inventário da fixture `/tmp/mdw-sr3` (verificado por `find`, 2026-09-28 — 14 arquivos; fixture ausente do host desde 2026-09-29 — este inventário é a fonte da reconstrução da tree, Pitfall 10)
 
 ```text
 /tmp/mdw-sr3/
@@ -513,18 +513,20 @@ N+1. **OUTPUT_LANG** — `en` \| `pt-br` (canonical tokens, lowercase; use one o
 | A4 | Método tar.gz do pwsh funciona sem sudo (página install-other-linux#binary-archives referenciada mas não aberta nesta sessão) | Standard Stack | Se a rota sem sudo for necessária e não funcionar, instalação exige o usuário de qualquer forma (sudo tem senha) |
 | A5 | A URL `https://opencode.ai` no rodapé do `.ps1` é wart a preservar (não decisão de corrigir agora) | Pattern 1 | Se o planner decidir corrigi-la nesta fase, quebra o espírito "cadeia atual não modificada" — correção pertence à Phase 4 via catálogo |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Superfície DokuWiki sem pandoc (Q1 — bloqueadora de escopo, não de início)**
+> **Status (2026-09-29):** as quatro perguntas foram resolvidas na sessão de planejamento e travadas no `01-CONTEXT.md` (commit 869e376) — Q1 → **D-09**, Q2 → **D-10**, Q3 → **D-11**, Q4 → **D-12** — e estão integralmente consumidas pelos planos 01-01/01-02/01-03. O texto abaixo permanece como registro da deliberação; nenhuma questão segue aberta.
+
+1. **Superfície DokuWiki sem pandoc (Q1 — RESOLVIDA → D-09)**
    - O que se sabe: `to-dokuwiki.sh`/`.ps1` fazem `exit 1` sem pandoc antes de escrever qualquer byte publicável (Pitfall 6); D-01 inclui "mirror DokuWiki" nas 5 superfícies; o critério 4 manda o harness rodar sem engines
    - O que está claro: sem pandoc, não há golden DokuWiki — não existe fallback
    - Recomendação: **pandoc como dev-dep** (mesmo regime D-03 do pwsh: `sudo apt install pandoc`, candidato 3.1.3), captura na Phase 1, e a perna entra no regime SKIPPED/exit 3 quando pandoc ausente. Alternativa (deferir o golden DokuWiki) deixa D-01 parcialmente entregue — pior
-2. **Golden `.ps1` da superfície PDF (Q2)**
+2. **Golden `.ps1` da superfície PDF (Q2 — RESOLVIDA → D-10)**
    - O que se sabe: `to-pdf.ps1` não tem fallback; o `$Output` nunca nasce sem engines (Pitfall 7); o rodapé datado que o CONTEXT.md manda congelar vive em `specs-book.md`
    - Recomendação: capturar `specs-book.md` como golden dessa perna com a exceção a D-01 **documentada no manifest** (é o único artefato engine-less e é byte-diferente do `.sh`: `\newpage`, sem headings por arquivo)
-3. **AUDIENCE da captura (Q3 — discretion, decidir no plano)**
+3. **AUDIENCE da captura (Q3 — RESOLVIDA → D-11)**
    - Recomendação: `general` (default do script; exercita a tabela `| Section | Description |`). A fixture validada usou `developer` — o manifest registra a escolha e o porquê
-4. **`templates/index.md` unconsumed (Q4 — para a seção de decisões do contrato)**
+4. **`templates/index.md` unconsumed (Q4 — RESOLVIDA → D-12)**
    - Recomendação: inventariar com status "unconsumed"; decidir usar-ou-remover fica para a Phase 2 (fora do escopo agora); o inventário marca a fonte viva como sendo os scripts
 
 ## Environment Availability
@@ -537,7 +539,7 @@ N+1. **OUTPUT_LANG** — `en` \| `pt-br` (canonical tokens, lowercase; use one o
 | git | repo (branch `ft/gsd-pattern-align`) | ✓ | 2.43.0 | — |
 | `C.UTF-8` locale | pin de captura/diff | ✓ (`C.utf8` em `locale -a`) | glibc | `pt_BR.utf8` existe mas não é portável |
 | mkdocs/mkdocs-material | nada nesta fase (golden é config-level, ADR-0003) | ✗ (esperado) | — | — |
-| pandoc | golden DokuWiki (Q1) | ✗ | candidato apt `3.1.3+ds-2` | perna SKIPPED exit 3 |
+| pandoc | golden DokuWiki (D-09, ex-Q1) | ✗ | candidato apt `3.1.3+ds-2` | perna SKIPPED exit 3 |
 | weasyprint/xelatex/wkhtmltopdf | nada (fallback do to-pdf é o golden) | ✗ (esperado) | — | — |
 | pwsh | goldens `.ps1` (D-03) | ✗ | 7.6.x via PMC/GitHub (doc oficial) | perna SKIPPED exit 3 |
 | node/npx | validação Swagger (opcional) | ✓ | v20.19.6 | — |
@@ -546,7 +548,7 @@ N+1. **OUTPUT_LANG** — `en` \| `pt-br` (canonical tokens, lowercase; use one o
 
 **Missing dependencies with no fallback:** nenhum bloqueador de início — pwsh e pandoc são necessários só no bloco de captura (com o usuário), e o regime SKIPPED mantém o harness funcional sem eles.
 
-**Missing dependencies with fallback:** pwsh (SKIPPED exit 3 — D-04), pandoc (idem, se Q1 aprovada a captura exige instalação; o harness segue sem).
+**Missing dependencies with fallback:** pwsh (SKIPPED exit 3 — D-04), pandoc (idem — D-09: a captura exige instalação; o harness segue sem).
 
 ## Security Domain
 
@@ -588,8 +590,8 @@ N+1. **OUTPUT_LANG** — `en` \| `pt-br` (canonical tokens, lowercase; use one o
 
 **Confidence breakdown:**
 - Standard stack (toolchain do harness): HIGH — tudo verificado por execução no host
-- Architecture (harness/goldens/contrato): HIGH — padrões derivados de leitura completa da cadeia + execução empírica; as 2 decisões pendentes (Q1/Q2) estão delimitadas com recomendação
+- Architecture (harness/goldens/contrato): HIGH — padrões derivados de leitura completa da cadeia + execução empírica; as decisões Q1-Q4 abertas na research foram resolvidas na sequência (D-09..D-12 no `01-CONTEXT.md`) e consumidas pelos planos
 - Pitfalls: HIGH — Pitfalls 1-4 e 6-7 têm evidência empírica ou âncora verbatim; 5 (BOM PS 5.1) e 8 (args ps1) são [CITED]/[ASSUMED] com checkpoint de captura
 
 **Research date:** 2026-09-28
-**Valid until:** 2026-10-28 (a cadeia é estável; o item mais volátil é `/tmp/mdw-sr3` — replicar o quanto antes, Pitfall 10)
+**Valid until:** 2026-10-28 (a cadeia é estável; o risco volátil `/tmp/mdw-sr3` materializou-se — ausente desde 2026-09-29, reconstrução pelo inventário, Pitfall 10)
