@@ -72,7 +72,7 @@ catalog_parity() {
 keyset_equality() { # <script_path>
   local script="$1" name declared expanded catalog_keys
   name="$(basename "$script")"
-  declared=$(grep -oE '^: "\$\{[a-z_][a-z0-9_]*:\?' "$script" | sed -E 's/^: "\$\{//; s/:\?$//' | sort -u)
+  declared=$(grep -oE '^[[:space:]]*: "\$\{[a-z_][a-z0-9_]*:\?' "$script" | sed -E 's/^[[:space:]]*: "\$\{//; s/:\?$//' | sort -u)
   # Catalog vocabulary is the UNION of en.lang and pt-br.lang keys, so a
   # pt-br-exclusive key referenced by a future script is still recognized
   # as a catalog reference rather than mistaken for a script-internal var.
@@ -160,6 +160,54 @@ bad_language_halts() { # <script_basename> <args...>
   fi
 }
 
+# --- Gate: pandoc_lang_flags ---------------------------------------------
+# D-13/QUAL-01: prove the -M lang / -M toc-title projection into the pandoc
+# consumer WITHOUT a real PDF engine. A stub `pandoc` on PATH records every
+# invocation's arguments; pt-br must carry both flags, en must carry neither.
+pandoc_lang_flags() { # <output_lang>
+  local lang="$1" sandbox out status args_file
+  sandbox=$(sandbox_new)
+  mkdir -p "$sandbox/bin"
+  cat > "$sandbox/bin/pandoc" <<'STUB'
+#!/usr/bin/env bash
+case "$*" in
+  *--help*) echo "pdf-engine" ;;
+  *) printf '%s\n' "$*" >> "$(dirname "$0")/../pandoc-args.txt" ;;
+esac
+exit 0
+STUB
+  chmod +x "$sandbox/bin/pandoc"
+  args_file="$sandbox/pandoc-args.txt"
+  out=$(cd "$sandbox" && PATH="$sandbox/bin:$PATH" bash scripts/to-pdf.sh out/specs-book.pdf "$lang" .specs/project/PROJECT.md 2>&1) && status=0 || status=$?
+  case "$lang" in
+    pt-br)
+      if [ "$status" -eq 0 ] && grep -qF -- '-M lang=pt-BR' "$args_file" 2>/dev/null \
+        && grep -qF -- '-M toc-title=Sumário' "$args_file" 2>/dev/null; then
+        echo "OK: pandoc_lang_flags pt-br"
+      else
+        echo "FAIL: pandoc_lang_flags pt-br — status=${status}"
+        printf '%s\n' "$out"; cat "$args_file" 2>/dev/null | sed 's/^/  /'
+        FAIL=1
+      fi
+      ;;
+    en)
+      if [ "$status" -eq 0 ] && ! grep -qF -- '-M lang' "$args_file" 2>/dev/null \
+        && ! grep -qF -- '-M toc-title' "$args_file" 2>/dev/null; then
+        echo "OK: pandoc_lang_flags en"
+      else
+        echo "FAIL: pandoc_lang_flags en — status=${status}"
+        printf '%s\n' "$out"; cat "$args_file" 2>/dev/null | sed 's/^/  /'
+        FAIL=1
+      fi
+      ;;
+    *)
+      echo "FAIL: pandoc_lang_flags — unsupported probe lang '${lang}'"
+      FAIL=1
+      ;;
+  esac
+  rm -rf "$sandbox"
+}
+
 # --- Gate: passthrough_intact --------------------------------------------
 # CHROME-04 as a permanent gate: the title-case pipeline must appear exactly
 # once in generate-index.sh and twice in generate-mkdocs.sh, and no line
@@ -244,6 +292,12 @@ intact_catalog_succeeds generate-mkdocs.sh TestProject .specs pt-br
 missing_key_halts generate-index.sh section_quick_start pt-br.lang TestProject general pt-br docs/specs/features
 
 bad_language_halts generate-index.sh TestProject general klingon docs/specs/features
+
+keyset_equality "$SCRIPTS/to-pdf.sh"
+missing_key_halts to-pdf.sh pdf_title specs-book.pdf en .specs/project/PROJECT.md
+intact_catalog_succeeds to-pdf.sh specs-book.pdf en .specs/project/PROJECT.md
+pandoc_lang_flags pt-br
+pandoc_lang_flags en
 
 [ "$FAIL" -eq 1 ] && exit 1
 exit 0

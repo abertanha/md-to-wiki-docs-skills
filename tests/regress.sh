@@ -77,7 +77,7 @@ run_chain() { # <dest_dir>
     bash "$SCRIPTS/generate-index.sh" TestProject general en docs/specs/features
     # Explicit file arguments, in format-pdf.md policy order — never an
     # unquoted expansion (word splitting differs between shells).
-    bash "$SCRIPTS/to-pdf.sh" specs-book.pdf \
+    bash "$SCRIPTS/to-pdf.sh" specs-book.pdf en \
       .specs/project/PROJECT.md .specs/project/ROADMAP.md \
       .specs/codebase/ARCHITECTURE.md \
       .specs/features/login/spec.md .specs/features/login/design.md \
