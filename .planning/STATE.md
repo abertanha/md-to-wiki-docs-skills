@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 current_phase: 03
 current_phase_name: pt-br-nas-5-superf-cies
 status: executing
-stopped_at: Phase 03 context gathered
-last_updated: "2026-09-29T19:00:04.599Z"
+stopped_at: Wave 1 complete — 03-01 done
+last_updated: "2026-09-29T20:02:23.000Z"
 last_activity: 2026-09-29
-last_activity_desc: Phase 02 complete, transitioned to Phase 3
-state_head: aed674976737441fb97865d9143b6751ba465a65
+last_activity_desc: Plan 03-01 executed — catálogo pt-br.lang, theme.language condicional, gate catalog_parity
+state_head: c1e5dae49347b9537cd5740f4b1eca6ce230e4f3
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 8
-  completed_plans: 5
-  percent: 50
+  completed_plans: 6
+  percent: 62
 ---
 
 # Project State
@@ -23,16 +23,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-28)
 
 **Core value:** Qualquer árvore de specs vira documentação publicável com um comando — de forma previsível.
-**Current focus:** Phase 02 — Catálogo de Labels & Cadeia MkDocs/index
+**Current focus:** Phase 03 — pt-br nas 5 Superfícies
 
 ## Current Position
 
-Phase: 03 (pt-br-nas-5-superf-cies) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-29 — Phase 02 complete, transitioned to Phase 3
+Phase: 03 (pt-br-nas-5-superf-cies) — Wave 1 complete
+Plan: 03-01 done — 03-02 next (Wave 2, blocked on Wave 1)
+Status: Executing
+Last activity: 2026-09-29 — Plano 03-01 executado (catálogo pt-br.lang, theme.language condicional, gate catalog_parity)
 
-Progress: [█████░░░░░] 50%
+Progress: [██████░░░░] 62%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [█████░░░░░] 50%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01 P01 | 14min | 2 tasks | 20 files |
+| Phase 03 P01 | 57min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - Roadmap: QUAL-02 (golden fixtures) na Phase 1 — congelar ANTES de qualquer refactor é pré-requisito de todos os gates seguintes
 - Roadmap: checkpoint `en` byte-idêntico como critério de barreira da Phase 2 (commit antes de qualquer pt-br)
 - Roadmap: gêmeos `.ps1` dobrados na fase final (granularidade coarse) — replicam o padrão provado, não abrem requisito novo
+- 03-01: `pt-br.lang` espelha ordem/agrupamento de `en.lang` para diff lado a lado legível entre catálogos
+- 03-01: `THEME_LANGUAGE` é variável de script MAIÚSCULA (não chave de catálogo) para não colidir com o filtro `[a-z]` do gate `keyset_equality`
+- 03-01: `missing_key_halts` detecta `catalog_basename` opcional pelo sufixo `.lang`, preservando as chamadas antigas sem alteração de assinatura
 
 ### Pending Todos
 
@@ -94,6 +98,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-29T18:26:10.299Z
-Stopped at: Phase 03 context gathered
-Resume file: .planning/phases/03-pt-br-nas-5-superf-cies/03-CONTEXT.md
+Last session: 2026-09-29T20:02:23.000Z
+Stopped at: Wave 1 complete — 03-01 done
+Resume file: None

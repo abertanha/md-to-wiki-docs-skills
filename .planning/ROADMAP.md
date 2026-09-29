@@ -88,7 +88,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 03-01-PLAN.md — Tracer: catálogo `templates/lang/pt-br.lang` (34 chaves) + `theme.language: pt-BR` condicional + gate de paridade de keyset en↔pt-br
+- [x] 03-01-PLAN.md — Tracer: catálogo `templates/lang/pt-br.lang` (34 chaves) + `theme.language: pt-BR` condicional + gate de paridade de keyset en↔pt-br
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -123,5 +123,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Contrato & Golden Fixtures | 3/3 | Complete    | 2026-09-29 |
 | 2. Catálogo de Labels & Cadeia MkDocs/index | 2/2 | Complete    | 2026-09-29 |
-| 3. pt-br nas 5 Superfícies | 0/3 | Not started | - |
+| 3. pt-br nas 5 Superfícies | 1/3 | In progress | - |
 | 4. Gêmeos PowerShell, Prosa & Release | 0/? | Not started | - |
