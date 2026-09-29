@@ -59,3 +59,8 @@ pdf_toc_title='Sumário'  # pt-br exclusiva (D-06) — en não passa -M toc-titl
 
 # superfície Swagger (templates/swagger-ui.html — sem consumidor nesta fase; consumida na Phase 3)
 swagger_title_suffix='Documentação da API'
+
+# superfície DokuWiki (scripts/to-dokuwiki.sh — consumida neste plano)
+dokuwiki_readme_heading='Instruções de Importação DokuWiki'
+dokuwiki_readme_steps='1. Copie o conteúdo de `data/` para o diretório `data/` da sua instância DokuWiki\n2. Acesse o Admin do DokuWiki → Gerenciador de Extensões\n3. Clique em "Load" para atualizar o índice de páginas\n4. Verifique as páginas sob o namespace specs'
+dokuwiki_readme_footer='Gerado pelo conjunto de skills md-to-wiki'

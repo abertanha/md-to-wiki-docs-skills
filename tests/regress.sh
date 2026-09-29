@@ -56,7 +56,7 @@ run_dokuwiki_sh() { # <dest_dir> — runs to-dokuwiki.sh over the fixture tree (
   cp -r "$TREE" "$WORK/.specs"
   (
     cd "$WORK"
-    bash "$SCRIPTS/to-dokuwiki.sh" dokuwiki \
+    bash "$SCRIPTS/to-dokuwiki.sh" dokuwiki en \
       .specs/project/PROJECT.md .specs/project/ROADMAP.md \
       .specs/codebase/ARCHITECTURE.md \
       .specs/features/login/spec.md .specs/features/login/design.md \

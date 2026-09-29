@@ -299,5 +299,8 @@ intact_catalog_succeeds to-pdf.sh specs-book.pdf en .specs/project/PROJECT.md
 pandoc_lang_flags pt-br
 pandoc_lang_flags en
 
+keyset_equality "$SCRIPTS/to-dokuwiki.sh"
+missing_key_halts to-dokuwiki.sh dokuwiki_readme_heading dokuwiki en .specs/project/PROJECT.md
+
 [ "$FAIL" -eq 1 ] && exit 1
 exit 0
