@@ -4,6 +4,17 @@ Items discovered during execution that are out of scope for the current
 plan (pre-existing, unrelated to the task's own diff). Not fixed per the
 SCOPE BOUNDARY rule; logged here for future cleanup.
 
+## 03-01 — Tarefa 3: `shfmt` pre-existing divergence in `tests/fail-closed.sh`
+
+- **Found during:** Tarefa 3 (gate de paridade en↔pt-br e probes pt-br)
+- **Observation:** same repo-wide 2-space-indent-vs-shfmt-default divergence
+  as the item below, confirmed pre-existing via `git stash` (251-line
+  `shfmt -d` diff present before any Tarefa 3 edit). `shellcheck
+  tests/fail-closed.sh` exits 0 clean — only `shfmt` diverges.
+- **Decision:** not fixed here, for the same reason as the item below. New
+  code (`catalog_parity`, the `missing_key_halts` catalog_basename branch)
+  follows the file's existing 2-space convention.
+
 ## 03-01 — Tarefa 2: `shfmt`/`shellcheck` pre-existing divergence in `scripts/generate-mkdocs.sh`
 
 - **Found during:** Tarefa 2 (theme.language pt-BR condicional)

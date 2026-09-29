@@ -18,6 +18,13 @@ SCRIPTS="$REPO_ROOT/scripts"
 TEMPLATES="$REPO_ROOT/templates"
 TREE="$REPO_ROOT/tests/fixtures/tree/.specs"
 CATALOG_EN="$TEMPLATES/lang/en.lang"
+CATALOG_PTBR="$TEMPLATES/lang/pt-br.lang"
+
+# pt-br-exclusive keys, allowlisted explicitly (D-06) — never a silent
+# default. `pdf_toc_title` has no `en` equivalent: the `en` branch never
+# passes `-M toc-title` to pandoc, so inventing an `en` value would be a
+# behavior change, not a translation.
+PTBR_ONLY_ALLOWLIST=(pdf_toc_title)
 
 # Pin the locale before any gate: the title-case sed in the chain corrupts
 # accented directory labels under LC_ALL=C (same rationale as tests/regress.sh).
@@ -37,20 +44,48 @@ sandbox_new() { # — mktemp sandbox with scripts/, templates/ and .specs copied
   printf '%s\n' "$sandbox"
 }
 
+# --- Gate: catalog_parity ------------------------------------------------
+# D-04/D-06: the `pt-br.lang` keyset must match `en.lang` exactly, except
+# for the keys named in PTBR_ONLY_ALLOWLIST (never a silent default — the
+# allowlist is the only thing permitted to shrink the diff to zero).
+catalog_parity() {
+  local en_keys ptbr_keys only_en only_ptbr allow
+  en_keys=$(grep -oE '^[a-z][a-z0-9_]*=' "$CATALOG_EN" | sed 's/=$//' | sort -u)
+  ptbr_keys=$(grep -oE '^[a-z][a-z0-9_]*=' "$CATALOG_PTBR" | sed 's/=$//' | sort -u)
+  only_en=$(comm -23 <(printf '%s\n' "$en_keys") <(printf '%s\n' "$ptbr_keys"))
+  only_ptbr=$(comm -13 <(printf '%s\n' "$en_keys") <(printf '%s\n' "$ptbr_keys"))
+  for allow in "${PTBR_ONLY_ALLOWLIST[@]}"; do
+    only_ptbr=$(printf '%s\n' "$only_ptbr" | grep -vFx "$allow" || true)
+  done
+  if [ -z "$only_en" ] && [ -z "$only_ptbr" ]; then
+    echo "OK: catalog_parity"
+  else
+    echo "FAIL: catalog_parity — only_en=[$(printf '%s' "$only_en" | tr '\n' ' ')] only_ptbr=[$(printf '%s' "$only_ptbr" | tr '\n' ' ')]"
+    FAIL=1
+  fi
+}
+
 # --- Gate: keyset_equality ---------------------------------------------
 # Permanent guard against Pitfall 6 (up-front gate falling out of sync with
 # the body): the set of keys declared in `: "${key:?…}"` lines must equal
 # the set of catalog-namespace keys actually expanded in the script body.
 keyset_equality() { # <script_path>
-  local script="$1" name declared expanded
+  local script="$1" name declared expanded catalog_keys
   name="$(basename "$script")"
   declared=$(grep -oE '^: "\$\{[a-z_][a-z0-9_]*:\?' "$script" | sed -E 's/^: "\$\{//; s/:\?$//' | sort -u)
+  # Catalog vocabulary is the UNION of en.lang and pt-br.lang keys, so a
+  # pt-br-exclusive key referenced by a future script is still recognized
+  # as a catalog reference rather than mistaken for a script-internal var.
+  catalog_keys=$(cat \
+    <(grep -oE '^[a-z][a-z0-9_]*=' "$CATALOG_EN" | sed 's/=$//') \
+    <(grep -oE '^[a-z][a-z0-9_]*=' "$CATALOG_PTBR" | sed 's/=$//') \
+    | sort -u)
   # Expanded set is filtered against the catalog's own key vocabulary so
   # script-internal lowercase vars (dir, label, rel, section, ...) never
   # get mistaken for a catalog reference.
   expanded=$(comm -12 \
     <(grep -oE '\$\{[a-z][a-z0-9_]*\}' "$script" | sed -E 's/^\$\{//; s/\}$//' | sort -u) \
-    <(grep -oE '^[a-z][a-z0-9_]*=' "$CATALOG_EN" | sed 's/=$//' | sort -u))
+    <(printf '%s\n' "$catalog_keys"))
   if [ "$declared" = "$expanded" ]; then
     echo "OK: keyset_equality ${name}"
   else
@@ -63,11 +98,20 @@ keyset_equality() { # <script_path>
 # --- Gate: missing_key_halts ---------------------------------------------
 # CHROME-03: removing one key from a SANDBOX COPY of the catalog must halt
 # the script with a non-zero status and a message naming the missing key.
-missing_key_halts() { # <script_basename> <key> <args...>
-  local script="$1" key="$2" sandbox out status
+missing_key_halts() { # <script_basename> <key> [catalog_basename] <args...>
+  local script="$1" key="$2" catalog_basename="en.lang" sandbox out status
   shift 2
+  # Optional 3rd positional: a catalog_basename (e.g. pt-br.lang) is
+  # distinguished from the script's own args by the `.lang` suffix, so
+  # existing call sites (no catalog_basename) keep working unmodified.
+  case "${1:-}" in
+    *.lang)
+      catalog_basename="$1"
+      shift
+      ;;
+  esac
   sandbox=$(sandbox_new)
-  sed -i "/^${key}=/d" "$sandbox/templates/lang/en.lang"
+  sed -i "/^${key}=/d" "$sandbox/templates/lang/${catalog_basename}"
   out=$(cd "$sandbox" && bash "scripts/${script}" "$@" 2>&1) && status=0 || status=$?
   rm -rf "$sandbox"
   if [ "$status" -ne 0 ] && printf '%s\n' "$out" | grep -q "$key"; then
@@ -191,6 +235,15 @@ passthrough_intact
 
 catalog_percent_value_safe
 accented_name_survives_default_locale
+
+catalog_parity
+
+intact_catalog_succeeds generate-index.sh TestProject general pt-br docs/specs/features
+intact_catalog_succeeds generate-mkdocs.sh TestProject .specs pt-br
+
+missing_key_halts generate-index.sh section_quick_start pt-br.lang TestProject general pt-br docs/specs/features
+
+bad_language_halts generate-index.sh TestProject general klingon docs/specs/features
 
 [ "$FAIL" -eq 1 ] && exit 1
 exit 0
