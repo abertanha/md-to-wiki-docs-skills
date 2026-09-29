@@ -59,7 +59,16 @@ Plans:
   3. Chave ausente no catálogo ativo interrompe a geração com erro nomeando a chave — verificado removendo uma chave e observando o fail (fail-closed, sem fallback silencioso)
   4. Labels derivados de nomes de arquivo do usuário saem passthrough — nenhuma transformação de case em runtime, chrome fora do sed de title-case; paths, anchors e filenames gerados permanecem idênticos aos atuais
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — Tracer: catálogo `templates/lang/en.lang` (33 chaves verbatim) + `generate-index.sh` emitindo todo chrome por lookup + checkpoint byte-idêntico contra o golden da Phase 1
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 02-02-PLAN.md — `generate-mkdocs.sh` por lookup, `tests/fail-closed.sh` como gate repetível de CHROME-03/CHROME-04, e decisão do usuário sobre `templates/index.md`
 
 ### Phase 3: pt-br nas 5 Superfícies
 
@@ -100,6 +109,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Contrato & Golden Fixtures | 3/3 | Complete    | 2026-09-29 |
-| 2. Catálogo de Labels & Cadeia MkDocs/index | 0/? | Not started | - |
+| 2. Catálogo de Labels & Cadeia MkDocs/index | 0/2 | Planned | - |
 | 3. pt-br nas 5 Superfícies | 0/? | Not started | - |
 | 4. Gêmeos PowerShell, Prosa & Release | 0/? | Not started | - |
