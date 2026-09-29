@@ -32,11 +32,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Harness de diff (`diff -r`/`cmp`) commitado roda sem engines (host sem mkdocs/pandoc) e valida os goldens como idênticos à cadeia atual
   5. Inventário de chrome (4 camadas × 5 superfícies, arquivo:linha) e decisões de escopo registradas no contrato: política fail-closed de chave ausente, localização e formato do catálogo, escopo Swagger (título + `lang`, limite upstream documentado) e datas ISO 8601 nos dois idiomas
 
-**Plans**: 3 plans
+**Plans**: 1/3 plans executed
 
 Plans:
 **Wave 1**
-- [ ] 01-01-PLAN.md — Tracer (walking skeleton): árvore de fixture commitada + harness `tests/regress.sh` + goldens `.sh` engine-less com máscara de data e regime SKIPPED/exit 3
+- [x] 01-01-PLAN.md — Tracer (walking skeleton): árvore de fixture commitada + harness `tests/regress.sh` + goldens `.sh` engine-less com máscara de data e regime SKIPPED/exit 3
 - [ ] 01-02-PLAN.md — Contrato `OUTPUT_LANG` (CONTEXT.md + onboarding) + inventário de chrome `docs/chrome-inventory.md`
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -92,7 +92,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Contrato & Golden Fixtures | 0/? | Not started | - |
+| 1. Contrato & Golden Fixtures | 1/3 | In Progress | - |
 | 2. Catálogo de Labels & Cadeia MkDocs/index | 0/? | Not started | - |
 | 3. pt-br nas 5 Superfícies | 0/? | Not started | - |
 | 4. Gêmeos PowerShell, Prosa & Release | 0/? | Not started | - |
