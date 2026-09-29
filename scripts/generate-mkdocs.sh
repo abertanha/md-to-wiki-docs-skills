@@ -31,6 +31,17 @@ CATALOG="${SCRIPT_DIR}/../templates/lang/${OUTPUT_LANG}.lang"
   exit 1
 }
 
+# theme.language projection (D-12): consumer configuration, not a chrome
+# label, so it is NOT a catalog key — UPPERCASE on purpose keeps it out of
+# reach of the [a-z] catalog-reference filter in tests/fail-closed.sh's
+# keyset_equality gate. Empty for en (Material's own default is already en,
+# so omitting the key keeps the golden byte-identical); pt-BR region-cased
+# per BCP 47 for pt-br.
+case "$OUTPUT_LANG" in
+  en) THEME_LANGUAGE='' ;;
+  pt-br) THEME_LANGUAGE=$'  language: pt-BR\n' ;;
+esac
+
 set -a
 # shellcheck source=/dev/null
 . "$CATALOG"
@@ -88,7 +99,7 @@ site_dir: site
 
 theme:
   name: material
-  features:
+${THEME_LANGUAGE}  features:
     - navigation.tabs
     - navigation.sections
     - toc.integrate
