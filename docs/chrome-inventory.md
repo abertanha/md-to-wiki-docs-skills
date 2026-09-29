@@ -71,9 +71,9 @@ Os gêmeos PowerShell emitem chrome próprio; divergências contra a Camada 1 es
 | Chave | Sítio | Valor `en` (verbatim) | Status |
 |-------|-------|------------------------|--------|
 | `swagger_title_suffix` | templates/swagger-ui.html:6 | `<title>{{PROJECT_NAME}} — API Docs</title>` (o placeholder `{{OPENAPI_YML}}` está na linha 18) | **vivo** — consumido por agents/format-swagger.md:67-70 |
-| (espelho das chaves de index) | templates/index.md:1,3,7-25 | `# {{PROJECT_NAME}} — Specifications` (linha 1), tagline (linha 3), seções `## Project`/`## Codebase`/`## Features` com tabelas `Document | Description` (linhas 7-25) | **unconsumed** — nada o lê |
+| ~~(espelho das chaves de index)~~ | ~~templates/index.md~~ | ~~paralelo morto, nunca consumido~~ | **removido** — arquivo deletado via `git rm` na Phase 2 (commit `37c87bd`) |
 
-Nota sobre `templates/index.md` (D-12): grep em `agents/`, `scripts/`, `SKILL.md` e `CONTEXT.md` não encontra nenhum consumidor — o `generate-index.sh` usa heredoc próprio (Camada 1). O template é um paralelo morto: a Phase 2 extrai os valores `en` **dos scripts** (fonte viva), nunca daqui. Decidir usar-ou-remover o template é decisão da Phase 2, fora do escopo deste inventário.
+Nota sobre `templates/index.md` (D-12): decisão resolvida na Phase 2 — o arquivo foi removido (`git rm`, commit `37c87bd`) porque grep em `agents/`, `scripts/`, `SKILL.md` e `CONTEXT.md` não encontrava nenhum consumidor (o `generate-index.sh` usa heredoc próprio, Camada 1) e a Phase 2 extraiu os valores `en` **dos scripts** (fonte viva) para `templates/lang/en.lang`, nunca deste template.
 
 ## Camada 4 — prosa de chrome escrita por agents em runtime
 
