@@ -45,7 +45,7 @@ Script calls use the pattern:
 $SCRIPT_RUNNER "$SKILL_DIR/scripts/<name>$SCRIPT_EXT" <positional_args>
 ```
 
-All scripts accept **identical positional arguments** across `.sh` and `.ps1` — no flags needed, no OS-specific syntax.
+Scripts accept the same positional arguments across `.sh` and `.ps1`, with one exception in flight: `generate-index` and `generate-mkdocs` on `.sh` take a required `output_lang` positional (`en`, `pt-br`) that the `.ps1` twins do not yet accept — landing in a later phase. No flags needed, no OS-specific syntax otherwise.
 
 ## Audience Values
 
@@ -80,7 +80,6 @@ md-to-wiki/
 │   ├── to-dokuwiki.ps1       # (PowerShell)
 │   └── prompt-tests.sh       # Routing + execution tests (gitignored)
 ├── templates/                # Reusable templates
-│   ├── index.md              # Landing page template
 │   └── swagger-ui.html       # Swagger UI wrapper
 └── agents/                   # On-demand subagents
     ├── onboarding.md         # Discovery interview + OS detection

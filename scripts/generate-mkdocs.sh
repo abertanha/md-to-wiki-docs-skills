@@ -1,10 +1,42 @@
 #!/usr/bin/env bash
 # generate-mkdocs.sh — Build a MkDocs Material site skeleton from a specs tree
-# Usage: generate-mkdocs.sh [project_name] [specs_dir]
+# Usage: generate-mkdocs.sh [project_name] [specs_dir] <output_lang>
 set -euo pipefail
 
 PROJECT_NAME="${1:-Project}"
 SPECS_DIR="${2:-.specs}"
+OUTPUT_LANG="${3:?Usage: generate-mkdocs.sh [project_name] [specs_dir] <output_lang> — output_lang required, supported: en, pt-br}"
+OUTPUT_LANG=$(printf '%s' "$OUTPUT_LANG" | tr 'A-Z' 'a-z')
+
+# Allowlist gate BEFORE any path is built from OUTPUT_LANG — an unknown value
+# never reaches the catalog path construction below (T-02-06).
+case "$OUTPUT_LANG" in
+  en|pt-br) ;;
+  *)
+    echo "ERROR: unsupported output_lang '${OUTPUT_LANG}' — supported: en, pt-br" >&2
+    exit 1
+    ;;
+esac
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CATALOG="${SCRIPT_DIR}/../templates/lang/${OUTPUT_LANG}.lang"
+[ -f "$CATALOG" ] || {
+  echo "ERROR: catalog not found for output_lang '${OUTPUT_LANG}': ${CATALOG}" >&2
+  exit 1
+}
+
+set -a
+# shellcheck source=/dev/null
+. "$CATALOG"
+set +a
+
+# Fail-closed up-front: every key this script expands must exist in the
+# catalog before any byte of output is written (a gate covering only a
+# subset would let partial output escape before the error surfaces).
+: "${site_name_suffix:?key site_name_suffix not found in catalog}"
+: "${site_description:?key site_description not found in catalog}"
+: "${nav_home:?key nav_home not found in catalog}"
+
 SITE_DOCS="docs"
 
 mkdir -p "$SITE_DOCS/specs"
@@ -40,8 +72,8 @@ done
 # Generate mkdocs.yml at the project root (docs_dir/site_dir explicit, so the
 # build works from the root regardless of the caller's cwd)
 cat > mkdocs.yml <<YAML
-site_name: $PROJECT_NAME — Specifications
-site_description: Auto-generated documentation from spec-driven development
+site_name: $PROJECT_NAME ${site_name_suffix}
+site_description: ${site_description}
 repo_url: $repo_url
 edit_uri: blob/main/
 
@@ -56,7 +88,7 @@ theme:
     - toc.integrate
 
 nav:
-  - Home: index.md
+  - ${nav_home}: index.md
 ${nav_entries}
 YAML
 

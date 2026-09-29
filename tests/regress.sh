@@ -73,7 +73,7 @@ run_chain() { # <dest_dir>
   cp -r "$TREE" "$WORK/.specs"
   (
     cd "$WORK"
-    bash "$SCRIPTS/generate-mkdocs.sh" TestProject .specs
+    bash "$SCRIPTS/generate-mkdocs.sh" TestProject .specs en
     bash "$SCRIPTS/generate-index.sh" TestProject general en docs/specs/features
     # Explicit file arguments, in format-pdf.md policy order — never an
     # unquoted expansion (word splitting differs between shells).

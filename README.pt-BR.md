@@ -45,7 +45,7 @@ As chamadas seguem o padrão:
 $SCRIPT_RUNNER "$SKILL_DIR/scripts/<nome>$SCRIPT_EXT" <args_posicionais>
 ```
 
-Todos os scripts aceitam **argumentos posicionais idênticos** entre `.sh` e `.ps1` — sem flags, sem sintaxe específica de SO.
+Os scripts aceitam os mesmos argumentos posicionais entre `.sh` e `.ps1`, com uma exceção vigente: `generate-index` e `generate-mkdocs` em `.sh` recebem um posicional obrigatório `output_lang` (`en`, `pt-br`) que os gêmeos `.ps1` ainda não aceitam — chega em fase futura. Sem flags, sem sintaxe específica de SO fora isso.
 
 ## Valores de público-alvo
 
@@ -80,7 +80,6 @@ md-to-wiki/
 │   ├── to-dokuwiki.ps1       # (PowerShell)
 │   └── prompt-tests.sh       # Testes de roteamento e execução (excluído do git)
 ├── templates/                # Templates reutilizáveis
-│   ├── index.md              # Template da landing page
 │   └── swagger-ui.html       # Wrapper Swagger UI
 └── agents/                   # Subagentes carregados sob demanda
     ├── onboarding.md         # Entrevista de descoberta + detecção de SO

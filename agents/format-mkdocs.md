@@ -23,10 +23,12 @@ Done when the summary accounts for every markdown file under `$SOURCES` (each fi
 ### 2. Generate the site skeleton
 
 ```bash
-$SCRIPT_RUNNER "$SKILL_DIR/scripts/generate-mkdocs$SCRIPT_EXT" "$PROJECT_NAME" "$SOURCES"
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/generate-mkdocs$SCRIPT_EXT" "$PROJECT_NAME" "$SOURCES" "$OUTPUT_LANG"
 ```
 
 The script copies the specs tree into `docs/specs/` and writes `mkdocs.yml` (project root, `docs_dir: docs`) with the full nav. Done when `mkdocs.yml` exists and its nav contains one section per non-empty top-level spec directory.
+
+`OUTPUT_LANG` comes from the dispatch prompt, never from the environment — same mechanism as step 3 below. An unknown or missing value stops the script with the list of supported languages (`en`, `pt-br`); there is no silent fallback.
 
 ### 3. Generate the landing page
 
