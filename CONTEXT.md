@@ -15,9 +15,18 @@ Set once during onboarding (assignment logic lives in `agents/onboarding.md` —
 | `PROJECT_NAME` | Confirmed project name | free text |
 | `SOURCES` | Root directory of the specs tree — one directory | e.g. `.specs/` |
 | `AUDIENCE` | Who reads the output | `developer` \| `stakeholder` \| `general` |
+| `OUTPUT_LANG` | Output language of published chrome | `en` \| `pt-br` (default `pt-br`; normalize case-insensitively on input — `pt-BR` ≡ `pt-br`) |
 | `FORMAT` | Chosen output format | one route name from SKILL.md |
 
 `OS_TYPE`, `SCRIPT_EXT`, and `SCRIPT_RUNNER` are coupled: they are assigned together by the OS detection case, never mixed independently.
+
+## Output language policy
+
+The output language is normalized case-insensitively on input (`pt-br` ≡ `pt-BR`) and projected per consumer: `pt-BR` for MkDocs Material `theme.language`, pandoc `-M lang`, and the HTML `lang` attribute; `pt_BR` for Pyphen hyphenation — the projection happens in one table at the point of use. An unknown value fails closed: stop and list the supported values (`en`, `pt-br`); enforcement in scripts is a later phase, the contract records the decision now. Labels live in `templates/lang/*.lang` files in `KEY=value` format, UTF-8 without BOM (implemented in a later phase); a key missing from the catalog also fails closed, naming the missing key — never a silent fallback, which is how mixed-language output happens. Swagger scope is the page title and the `lang` attribute only: the upstream Swagger UI bundle has no official i18n and its chrome stays English — a documented limit. Dates are ISO 8601 in both languages, and the scripts' progress console remains in English (it is not published output).
+
+Authority: `docs/chrome-inventory.md` — the map of chrome keys to their current `en` values and sites lives there; this file does not restate keys.
+
+Note: `MDW_INDEX_OUT` (read by `scripts/generate-index.sh:19`) is a pre-existing output-path environment variable, not a pattern to follow — `OUTPUT_LANG` never reads from the environment; it is assigned during onboarding and passed via dispatch prompt like every other variable.
 
 ## Script-call convention
 
