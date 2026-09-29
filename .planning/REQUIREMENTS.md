@@ -14,10 +14,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Catálogo & Chrome
 
-- [ ] **CHROME-01**: Todo chrome de script/template resolve por chave contra um catálogo externo `KEY=value` por idioma; as strings `en` são extraídas verbatim das strings hardcoded atuais (nunca redigitadas)
+- [x] **CHROME-01**: Todo chrome de script/template resolve por chave contra um catálogo externo `KEY=value` por idioma; as strings `en` são extraídas verbatim das strings hardcoded atuais (nunca redigitadas)
 - [ ] **CHROME-02**: Com `OUTPUT_LANG=pt-br`, as 5 superfícies (MkDocs index+nav, GitHub Wiki, DokuWiki, PDF, Swagger UI) emitem chrome 100% PT-BR — zero saída mista
-- [ ] **CHROME-03**: Chave ausente no catálogo ativo interrompe a geração com erro nomeando a chave (fail-closed; fallback silencioso é o mecanismo da saída mista)
-- [ ] **CHROME-04**: Paths, anchors e filenames gerados jamais são traduzidos; labels derivados de nomes de arquivo do usuário são passthrough sem transformação de case
+- [x] **CHROME-03**: Chave ausente no catálogo ativo interrompe a geração com erro nomeando a chave (fail-closed; fallback silencioso é o mecanismo da saída mista)
+- [x] **CHROME-04**: Paths, anchors e filenames gerados jamais são traduzidos; labels derivados de nomes de arquivo do usuário são passthrough sem transformação de case
 
 ### Qualidade & Locale
 
@@ -68,10 +68,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | PARAM-01 | Phase 1 | Complete |
 | PARAM-02 | Phase 1 | Complete |
-| CHROME-01 | Phase 2 | Pending |
+| CHROME-01 | Phase 2 | Complete |
 | CHROME-02 | Phase 3 | Pending |
-| CHROME-03 | Phase 2 | Pending |
-| CHROME-04 | Phase 2 | Pending |
+| CHROME-03 | Phase 2 | Complete |
+| CHROME-04 | Phase 2 | Complete |
 | QUAL-01 | Phase 3 | Pending |
 | QUAL-02 | Phase 1 | Complete |
 | QUAL-03 | Phase 4 | Pending |

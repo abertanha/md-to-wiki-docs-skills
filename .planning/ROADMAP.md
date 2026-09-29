@@ -14,7 +14,7 @@ O milestone OUTPUT_LANG retrofitta localização de chrome single-locale sobre a
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Contrato & Golden Fixtures** - `OUTPUT_LANG` no contrato, normalização de locale e golden fixtures `en` congelados por geminho antes de qualquer refactor (completed 2026-09-29)
-- [ ] **Phase 2: Catálogo de Labels & Cadeia MkDocs/index** - Extração mecânica das strings `en`, consumo por chave nas superfícies de maior risco e o checkpoint duro de regressão `en`
+- [x] **Phase 2: Catálogo de Labels & Cadeia MkDocs/index** - Extração mecânica das strings `en`, consumo por chave nas superfícies de maior risco e o checkpoint duro de regressão `en` (completed 2026-09-29)
 - [ ] **Phase 3: pt-br nas 5 Superfícies** - Catálogo `pt-br` completo, chrome 100% PT-BR nas cinco superfícies e locale projetado em cada consumer
 - [ ] **Phase 4: Gêmeos PowerShell, Prosa & Release** - Catálogo na segunda shell com encoding disciplinado, prosa regida pelo glossário anti-calque e fechamento do milestone
 
@@ -59,7 +59,7 @@ Plans:
   3. Chave ausente no catálogo ativo interrompe a geração com erro nomeando a chave — verificado removendo uma chave e observando o fail (fail-closed, sem fallback silencioso)
   4. Labels derivados de nomes de arquivo do usuário saem passthrough — nenhuma transformação de case em runtime, chrome fora do sed de title-case; paths, anchors e filenames gerados permanecem idênticos aos atuais
 
-**Plans**: 1/2 plans executed
+**Plans**: 2/2 plans complete
 
 Plans:
 **Wave 1**
@@ -68,7 +68,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-02-PLAN.md — `generate-mkdocs.sh` por lookup, `tests/fail-closed.sh` como gate repetível de CHROME-03/CHROME-04, e decisão do usuário sobre `templates/index.md`
+- [x] 02-02-PLAN.md — `generate-mkdocs.sh` por lookup, `tests/fail-closed.sh` como gate repetível de CHROME-03/CHROME-04, e decisão do usuário sobre `templates/index.md`
 
 ### Phase 3: pt-br nas 5 Superfícies
 
@@ -109,6 +109,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Contrato & Golden Fixtures | 3/3 | Complete    | 2026-09-29 |
-| 2. Catálogo de Labels & Cadeia MkDocs/index | 1/2 | In Progress|  |
+| 2. Catálogo de Labels & Cadeia MkDocs/index | 2/2 | Complete    | 2026-09-29 |
 | 3. pt-br nas 5 Superfícies | 0/? | Not started | - |
 | 4. Gêmeos PowerShell, Prosa & Release | 0/? | Not started | - |
