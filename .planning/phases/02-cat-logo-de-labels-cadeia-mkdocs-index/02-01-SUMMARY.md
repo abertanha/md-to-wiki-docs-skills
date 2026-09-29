@@ -165,3 +165,14 @@ None - no external service configuration required.
 ---
 *Phase: 02-cat-logo-de-labels-cadeia-mkdocs-index*
 *Completed: 2026-09-29*
+
+## Self-Check: PASSED
+
+- FOUND: templates/lang/en.lang
+- FOUND: scripts/generate-index.sh
+- FOUND: tests/regress.sh
+- FOUND: agents/format-mkdocs.md
+- FOUND: docs/chrome-inventory.md
+- FOUND: commit 6f406ce (Task 1)
+- FOUND: commit 5dbe821 (Task 2)
+- FOUND: commit fe04da2 (this SUMMARY.md)
