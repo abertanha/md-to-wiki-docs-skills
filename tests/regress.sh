@@ -74,7 +74,7 @@ run_chain() { # <dest_dir>
   (
     cd "$WORK"
     bash "$SCRIPTS/generate-mkdocs.sh" TestProject .specs
-    bash "$SCRIPTS/generate-index.sh" TestProject general docs/specs/features
+    bash "$SCRIPTS/generate-index.sh" TestProject general en docs/specs/features
     # Explicit file arguments, in format-pdf.md policy order — never an
     # unquoted expansion (word splitting differs between shells).
     bash "$SCRIPTS/to-pdf.sh" specs-book.pdf \
