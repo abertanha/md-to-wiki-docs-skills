@@ -1,0 +1,24 @@
+# Architecture
+
+TestProject is a documentation pipeline with three moving parts.
+
+## Components
+
+- Specs tree: the source of truth, organized by directory (`project/`,
+  `codebase/`, `features/`, `quick/`)
+- Generator scripts: read the specs tree and emit the site skeleton,
+  the landing page, and the book view
+- Published surfaces: the site configuration plus mirrored docs, the
+  landing page, and the book
+
+## Data flow
+
+The generator scripts take the specs tree as input and write their
+outputs under a docs directory. Navigation labels are derived from
+directory names, so renaming a directory renames its section.
+
+## Constraints
+
+- Generator scripts never edit spec content
+- Every published link must resolve inside the generated tree
+- Runs must be repeatable: same inputs, same bytes

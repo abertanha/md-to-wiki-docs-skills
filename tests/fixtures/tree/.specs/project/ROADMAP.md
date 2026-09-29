@@ -1,0 +1,29 @@
+# Roadmap
+
+The roadmap lists milestones in delivery order. Dates are intentionally
+omitted; each milestone ships when its acceptance criteria pass.
+
+## Milestone 1: Site skeleton
+
+- Generate the site configuration from the specs tree
+- Mirror the specs tree under the docs directory
+- Land the landing page with valid internal links
+
+Acceptance: the generated navigation lists every top-level section and
+every link resolves inside the site.
+
+## Milestone 2: Feature pages
+
+- Publish one page per feature directory
+- Link spec, design, and tasks documents from the feature table
+- Keep missing documents visible as an em dash instead of a dead link
+
+Acceptance: each feature row renders with at least a spec link.
+
+## Milestone 3: Book view
+
+- Assemble the ordered book from explicit file arguments
+- Fall back to the markdown book when no PDF engine is present
+- Preserve the book content byte for byte between runs
+
+Acceptance: repeated runs produce identical output.
