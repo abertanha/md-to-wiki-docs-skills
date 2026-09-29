@@ -9,19 +9,23 @@ regressão silenciosamente e é proibido.
 
 ## Baseline da captura
 
-Pendente — preencher no plano 01-03 (captura por geminho `.ps1`):
+- `pandoc --version`: pandoc 3.7.0.2 (versão do host WSL2 Ubuntu 24.04)
+- `pwsh --version`: **não disponível neste host** — a perna `.ps1` é para
+  usuários Windows; em hosts Linux/WSL sem pwsh o harness termina exit 3
+  (regime SKIPPED correto, não um defeito). O golden-ps1 requer um host com
+  PowerShell 7.
+- Commit SHA da captura (golden-sh/dokuwiki adicionado): `3c81fe2`
+- Commit SHA da captura inicial (goldens engine-less .sh): `f2faeb9`
 
-- `pwsh --version`: *(a registrar na 01-03; baseline acordado: PowerShell 7
-  no Linux — gravação UTF-8 sem BOM, LF; PS 5.1 pode divergir em BOM/CRLF e
-  segue como gap registrado no STATE.md)*
-- `pandoc --version`: *(a registrar na 01-03; necessário só para a perna
-  DokuWiki, que não tem fallback)*
-- Commit SHA da captura: `f2faeb9` (goldens engine-less da cadeia `.sh`)
+**Perna DokuWiki version-pinned:** a saída do pandoc writer `dokuwiki` pode
+variar entre versões. O golden `tests/fixtures/golden-sh/dokuwiki/` está
+fixado na versão acima; uma atualização do pandoc pode exigir nova captura.
 
 Exceção antecipada (D-10): o golden `.ps1` da superfície PDF será
 `specs-book.md` — o que `to-pdf.ps1` produz sem engine — porque o geminho
 não tem fallback markdown para o PDF publicável. É também onde vive o
-rodapé datado (`*Generated on $date*`) que a máscara cobre.
+rodapé datado (`*Generated on $date*`) que a máscara cobre. Esta exceção
+continua válida; a captura aguarda host com pwsh.
 
 ## Pins da invocação canônica
 

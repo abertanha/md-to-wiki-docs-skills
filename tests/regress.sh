@@ -50,6 +50,23 @@ die() { # <message> — fail closed
 # specs mirror accumulates orphans) and collect the publishable surfaces.
 # The workdir is a mktemp dir OUTSIDE any git repo, so the origin URL can
 # never leak into the golden mkdocs.yml.
+run_dokuwiki_sh() { # <dest_dir> — runs to-dokuwiki.sh over the fixture tree (requires pandoc)
+  local DEST="$1" WORK
+  WORK=$(mktemp -d)
+  cp -r "$TREE" "$WORK/.specs"
+  (
+    cd "$WORK"
+    bash "$SCRIPTS/to-dokuwiki.sh" dokuwiki \
+      .specs/project/PROJECT.md .specs/project/ROADMAP.md \
+      .specs/codebase/ARCHITECTURE.md \
+      .specs/features/login/spec.md .specs/features/login/design.md \
+      ".specs/features/autenticação/spec.md" \
+      .specs/quick/fix-nav/spec.md
+  )
+  cp -r "$WORK/dokuwiki" "$DEST/dokuwiki"
+  rm -rf "$WORK"
+}
+
 run_chain() { # <dest_dir>
   local DEST="$1" WORK
   WORK=$(mktemp -d)
@@ -132,21 +149,44 @@ case "$MODE" in
     ;;
 esac
 
-# DokuWiki leg: to-dokuwiki.sh exits 1 without pandoc and has no fallback,
-# so the leg is gated here — a missing dev-only dependency is a SKIP, never
-# a silent pass or a diff failure.
+# DokuWiki leg (.sh geminho): gated on pandoc (dev-only dep, no fallback in the script).
+# Missing pandoc is a SKIP, not a diff failure.
+GOLDEN_DW="$REPO_ROOT/tests/fixtures/golden-sh/dokuwiki"
 if command -v pandoc >/dev/null 2>&1; then
-  skip "pandoc present but the DokuWiki golden lands with plan 01-03 — leg not wired in this plan"
+  case "$MODE" in
+    capture)
+      FRESH_DW=$(mktemp -d)
+      run_dokuwiki_sh "$FRESH_DW"
+      rm -rf "$GOLDEN_DW"
+      cp -r "$FRESH_DW/dokuwiki" "$GOLDEN_DW"
+      rm -rf "$FRESH_DW"
+      echo "Captured DokuWiki golden into tests/fixtures/golden-sh/dokuwiki/"
+      ;;
+    regress)
+      [ -f "$GOLDEN_DW/README.md" ] || die "DokuWiki golden not found under $GOLDEN_DW — run 'tests/regress.sh capture' first"
+      FRESH_DW=$(mktemp -d)
+      run_dokuwiki_sh "$FRESH_DW"
+      out=$(diff -r "$GOLDEN_DW" "$FRESH_DW/dokuwiki" 2>&1) && {
+        echo "OK: dokuwiki identical"
+      } || {
+        echo "FAIL: dokuwiki diverged"
+        printf '%s\n' "$out" | sed 's/^/  /'
+        FAIL=1
+      }
+      rm -rf "$FRESH_DW"
+      ;;
+  esac
 else
   skip "pandoc not found on host — DokuWiki surface needs the dev-only dependency (sudo apt install pandoc; see tests/fixtures/manifest.md)"
 fi
 
-# .ps1 leg: the PowerShell twins are captured under pwsh (dev-only dep,
-# baseline PS7/Linux) with plan 01-03. Nothing is produced in this plan.
+# .ps1 leg: requires pwsh (dev-only, baseline PS7/Linux, UTF-8 without BOM).
+# On Linux/WSL hosts without pwsh this leg is SKIPPED — correct result for this
+# host class, not a defect. The golden-ps1 capture requires a host with pwsh.
 if command -v pwsh >/dev/null 2>&1; then
-  skip "pwsh present but the golden-ps1 capture lands with plan 01-03 — leg not wired in this plan"
+  skip "pwsh present but .ps1 golden capture not yet implemented in this harness"
 else
-  skip "pwsh not found on host — .ps1 surfaces need the dev-only dependency (see tests/fixtures/manifest.md)"
+  skip "pwsh not found on host — .ps1 surfaces require a host with PowerShell 7 (see tests/fixtures/manifest.md)"
 fi
 
 [ "$FAIL" -eq 1 ] && exit 1
