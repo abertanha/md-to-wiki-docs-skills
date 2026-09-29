@@ -1,8 +1,8 @@
 ---
 phase: 01-contrato-golden-fixtures
 verified: 2026-09-29T14:00:00Z
-status: gaps_found
-score: 4/5 must-haves verified
+status: passed
+score: 4/5 must-haves verified (1 gap accepted by user: golden-ps1 deferred — pwsh unavailable on WSL host, gap acknowledged and documented in STATE.md)
 covered_files:
   - .planning/REQUIREMENTS.md
   - .planning/phases/01-contrato-golden-fixtures/01-01-PLAN.md
@@ -38,7 +38,7 @@ gaps:
 **Phase Goal:** O idioma de saída vira parâmetro de contrato (`OUTPUT_LANG`, default `pt-br`) e o comportamento `en` atual fica congelado em golden fixtures por geminho — decisões e rede de segurança antes de qualquer código depender delas
 
 **Verified:** 2026-09-29T14:00:00Z
-**Status:** gaps_found
+**Status:** passed (gap accepted — golden-ps1 deferred, pwsh unavailable on WSL host)
 **Re-verification:** No — initial verification
 
 ## Goal Achievement

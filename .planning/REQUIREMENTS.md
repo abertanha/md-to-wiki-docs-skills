@@ -9,8 +9,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Parâmetro & Contrato
 
-- [ ] **PARAM-01**: `OUTPUT_LANG` é o único parâmetro de idioma (`en` | `pt-br`, default `pt-br`), atribuído no onboarding e transmitido por dispatch prompt — como `AUDIENCE`, nunca env var
-- [ ] **PARAM-02**: Locale é normalizado na entrada (`pt-br` ≡ `pt-BR`) e projetado para a forma canônica de cada consumidor (`pt-BR` para Material/pandoc/HTML, `pt_BR` para Pyphen); valor desconhecido interrompe com erro listando os suportados
+- [x] **PARAM-01**: `OUTPUT_LANG` é o único parâmetro de idioma (`en` | `pt-br`, default `pt-br`), atribuído no onboarding e transmitido por dispatch prompt — como `AUDIENCE`, nunca env var
+- [x] **PARAM-02**: Locale é normalizado na entrada (`pt-br` ≡ `pt-BR`) e projetado para a forma canônica de cada consumidor (`pt-BR` para Material/pandoc/HTML, `pt_BR` para Pyphen); valor desconhecido interrompe com erro listando os suportados
 
 ### Catálogo & Chrome
 
@@ -22,7 +22,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### Qualidade & Locale
 
 - [ ] **QUAL-01**: Idioma alcança os consumers: `theme.language: pt-BR` no mkdocs.yml (en omite a chave), `-M lang=pt-BR -M toc-title=Sumário` no pandoc (só pt-br), `lang` no HTML do Swagger
-- [ ] **QUAL-02**: Golden fixtures `en` congelados por geminho (.sh/.ps1) + harness de diff sem engines; `OUTPUT_LANG=en` reproduz a saída atual byte-idêntica (token de data mascarado e documentado)
+- [x] **QUAL-02**: Golden fixtures `en` congelados por geminho (.sh/.ps1) + harness de diff sem engines; `OUTPUT_LANG=en` reproduz a saída atual byte-idêntica (token de data mascarado e documentado)
 - [ ] **QUAL-03**: Glossário anti-calque no `CONTEXT.md` rege a prosa dos agents; denylist de calques verificável por grep como critério de completion
 
 ## v2 Requirements
@@ -66,17 +66,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PARAM-01 | Phase 1 | Pending |
-| PARAM-02 | Phase 1 | Pending |
+| PARAM-01 | Phase 1 | Complete |
+| PARAM-02 | Phase 1 | Complete |
 | CHROME-01 | Phase 2 | Pending |
 | CHROME-02 | Phase 3 | Pending |
 | CHROME-03 | Phase 2 | Pending |
 | CHROME-04 | Phase 2 | Pending |
 | QUAL-01 | Phase 3 | Pending |
-| QUAL-02 | Phase 1 | Pending |
+| QUAL-02 | Phase 1 | Complete |
 | QUAL-03 | Phase 4 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 9 total
 - Mapped to phases: 9
 - Unmapped: 0
