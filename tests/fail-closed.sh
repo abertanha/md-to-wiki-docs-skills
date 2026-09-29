@@ -134,6 +134,47 @@ passthrough_intact() {
   fi
 }
 
+# --- Gate: catalog_percent_value_safe ------------------------------------
+# CR-01 regression gate: a catalog value containing a literal `%` (plausible
+# in translated PT-BR prose, e.g. "100% automatizado", or any maintainer
+# typo) must not corrupt output or abort the script under set -euo pipefail.
+catalog_percent_value_safe() {
+  local sandbox out status generated
+  sandbox=$(sandbox_new)
+  sed -i "s/^generated_by=.*/generated_by='Gerado 100% por [md-to-wiki] — %s'/" "$sandbox/templates/lang/en.lang"
+  out=$(cd "$sandbox" && bash scripts/generate-index.sh TestProject general en .specs/features 2>&1) && status=0 || status=$?
+  generated=$(cat "$sandbox/docs/index.md" 2>/dev/null || true)
+  rm -rf "$sandbox"
+  if [ "$status" -eq 0 ] && printf '%s\n' "$generated" | grep -qF 'Gerado 100% por [md-to-wiki] — 2'; then
+    echo "OK: catalog_percent_value_safe"
+  else
+    echo "FAIL: catalog_percent_value_safe — status=${status}"
+    printf '%s\n' "$out" "$generated" | sed 's/^/  /'
+    FAIL=1
+  fi
+}
+
+# --- Gate: accented_name_survives_default_locale -------------------------
+# WR-01 regression gate: on a host where LC_ALL/LANG are unset (effective
+# locale falls back to POSIX/C), the script's own default
+# (export LC_ALL="${LC_ALL:-C.UTF-8}") must still title-case accented
+# directory names correctly instead of silently emitting mojibake.
+accented_name_survives_default_locale() {
+  local sandbox out status generated
+  sandbox=$(sandbox_new)
+  out=$(cd "$sandbox" && env -u LC_ALL -u LANG -u LC_CTYPE -u LC_COLLATE -u LC_MESSAGES \
+    bash scripts/generate-index.sh TestProject general en .specs/features 2>&1) && status=0 || status=$?
+  generated=$(cat "$sandbox/docs/index.md" 2>/dev/null || true)
+  rm -rf "$sandbox"
+  if [ "$status" -eq 0 ] && printf '%s\n' "$generated" | grep -qF 'Autenticação'; then
+    echo "OK: accented_name_survives_default_locale"
+  else
+    echo "FAIL: accented_name_survives_default_locale — status=${status}"
+    printf '%s\n' "$out" "$generated" | sed 's/^/  /'
+    FAIL=1
+  fi
+}
+
 keyset_equality "$SCRIPTS/generate-index.sh"
 keyset_equality "$SCRIPTS/generate-mkdocs.sh"
 
@@ -147,6 +188,9 @@ intact_catalog_succeeds generate-mkdocs.sh "${MKD_ARGS[@]}"
 bad_language_halts generate-mkdocs.sh TestProject .specs klingon
 
 passthrough_intact
+
+catalog_percent_value_safe
+accented_name_survives_default_locale
 
 [ "$FAIL" -eq 1 ] && exit 1
 exit 0
