@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Harness de diff (`diff -r`/`cmp`) commitado roda sem engines (host sem mkdocs/pandoc) e valida os goldens como idênticos à cadeia atual
   5. Inventário de chrome (4 camadas × 5 superfícies, arquivo:linha) e decisões de escopo registradas no contrato: política fail-closed de chave ausente, localização e formato do catálogo, escopo Swagger (título + `lang`, limite upstream documentado) e datas ISO 8601 nos dois idiomas
 
-**Plans**: 2/3 plans executed
+**Plans**: 3/3 plans executed
 
 Plans:
 **Wave 1**
@@ -44,7 +44,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-03-PLAN.md — Dev-deps pwsh/pandoc (sudo com o humano) + captura dos goldens `.ps1`/DokuWiki + regressão completa exit 0
+- [x] 01-03-PLAN.md — Dev-deps pwsh/pandoc (sudo com o humano) + captura dos goldens `.ps1`/DokuWiki + regressão completa exit 0
 
 ### Phase 2: Catálogo de Labels & Cadeia MkDocs/index
 
@@ -99,7 +99,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Contrato & Golden Fixtures | 2/3 | In Progress|  |
+| 1. Contrato & Golden Fixtures | 3/3 | In Progress|  |
 | 2. Catálogo de Labels & Cadeia MkDocs/index | 0/? | Not started | - |
 | 3. pt-br nas 5 Superfícies | 0/? | Not started | - |
 | 4. Gêmeos PowerShell, Prosa & Release | 0/? | Not started | - |
