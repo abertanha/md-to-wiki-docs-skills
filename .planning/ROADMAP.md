@@ -7,6 +7,7 @@ O milestone OUTPUT_LANG retrofitta localização de chrome single-locale sobre a
 ## Phases
 
 **Phase Numbering:**
+
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
@@ -26,20 +27,23 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Nothing (first phase)
 **Requirements**: PARAM-01, PARAM-02, QUAL-02
 **Success Criteria** (what must be TRUE):
+
   1. Onboarding pergunta o idioma de saída e grava `OUTPUT_LANG` no contexto do projeto (`pt-br` default quando indiferente); o `CONTEXT.md` documenta valores (`en` | `pt-br`), default, token canônico minúsculo e transmissão por dispatch prompt — nenhum env var em lugar nenhum
   2. O contrato fixa a normalização de locale na entrada (`pt-br` ≡ `pt-BR`), a tabela de projeção por consumidor (`pt-BR` para Material/pandoc/HTML, `pt_BR` para Pyphen) e o comportamento de erro para valor desconhecido listando os suportados
   3. Golden fixtures `en` congelados por geminho — `.sh` e `.ps1` capturados separadamente da cadeia atual não modificada, com tree de teste contendo diretório acentuado e token de data mascarado e documentado
   4. Harness de diff (`diff -r`/`cmp`) commitado roda sem engines (host sem mkdocs/pandoc) e valida os goldens como idênticos à cadeia atual
   5. Inventário de chrome (4 camadas × 5 superfícies, arquivo:linha) e decisões de escopo registradas no contrato: política fail-closed de chave ausente, localização e formato do catálogo, escopo Swagger (título + `lang`, limite upstream documentado) e datas ISO 8601 nos dois idiomas
 
-**Plans**: 1/3 plans executed
+**Plans**: 2/3 plans executed
 
 Plans:
 **Wave 1**
+
 - [x] 01-01-PLAN.md — Tracer (walking skeleton): árvore de fixture commitada + harness `tests/regress.sh` + goldens `.sh` engine-less com máscara de data e regime SKIPPED/exit 3
-- [ ] 01-02-PLAN.md — Contrato `OUTPUT_LANG` (CONTEXT.md + onboarding) + inventário de chrome `docs/chrome-inventory.md`
+- [x] 01-02-PLAN.md — Contrato `OUTPUT_LANG` (CONTEXT.md + onboarding) + inventário de chrome `docs/chrome-inventory.md`
 
 **Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 01-03-PLAN.md — Dev-deps pwsh/pandoc (sudo com o humano) + captura dos goldens `.ps1`/DokuWiki + regressão completa exit 0
 
 ### Phase 2: Catálogo de Labels & Cadeia MkDocs/index
@@ -49,6 +53,7 @@ Plans:
 **Depends on**: Phase 1
 **Requirements**: CHROME-01, CHROME-03, CHROME-04
 **Success Criteria** (what must be TRUE):
+
   1. Catálogo `en` externo (`KEY=value`, UTF-8 sem BOM, chaves namespaced por superfície) contém as strings extraídas verbatim das hardcoded atuais — `generate-index.sh`, `generate-mkdocs.sh` e os templates MkDocs emitem todo chrome por lookup, com zero string de chrome hardcoded
   2. Checkpoint duro: `OUTPUT_LANG=en` na cadeia MkDocs/index reproduz o golden fixture da Phase 1 byte-idêntico (diff vazio com máscara de data) — barreira de commit antes de qualquer pt-br
   3. Chave ausente no catálogo ativo interrompe a geração com erro nomeando a chave — verificado removendo uma chave e observando o fail (fail-closed, sem fallback silencioso)
@@ -63,6 +68,7 @@ Plans:
 **Depends on**: Phase 2
 **Requirements**: CHROME-02, QUAL-01
 **Success Criteria** (what must be TRUE):
+
   1. Catálogo `pt-br` completo com o mesmo key-set do `en` (paridade checada por gate); `to-pdf.sh`, `to-dokuwiki.sh` e `templates/swagger-ui.html` passam a emitir chrome por lookup do catálogo — as 5 superfícies saem 100% PT-BR
   2. Gate grep por superfície (com allowlist do glossário) não encontra nenhum rótulo `en` na saída pt-br — zero saída mista
   3. `theme.language: pt-BR` aparece no mkdocs.yml somente com pt-br (com `en` a chave é omitida — saída en inalterada); o comando pandoc do PDF carrega `-M lang=pt-BR -M toc-title=Sumário` somente no branch pt-br, verificado por assert estrutural sem engines; o HTML do Swagger ganha `lang`
@@ -77,6 +83,7 @@ Plans:
 **Depends on**: Phase 3
 **Requirements**: QUAL-03
 **Success Criteria** (what must be TRUE):
+
   1. Gêmeos `.ps1` (`generate-index.ps1`, `generate-mkdocs.ps1`, `to-pdf.ps1`, `to-dokuwiki.ps1`) resolvem todo chrome por chave contra o mesmo catálogo (leitura com encoding pinado, parse do `KEY=value`) — divergências de string entre gêmeos convergem por construção da fonte única
   2. `OUTPUT_LANG=en` reproduz os golden fixtures byte-idêntico por geminho também no lado `.ps1` após o refactor; fixture com diretório acentuado não apresenta mojibake nem BOM inesperado no caminho en (wart atual preservado)
   3. Glossário anti-calque no `CONTEXT.md` rege a prosa dos agents: dispatch prompts e `agents/format-*.md` carregam a linha de `OUTPUT_LANG` + glossário inline (referência consultada sob demanda é ignorada sob pressão); nouns canônicos de seção vêm do mesmo mapa de labels
@@ -92,7 +99,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Contrato & Golden Fixtures | 1/3 | In Progress | - |
+| 1. Contrato & Golden Fixtures | 2/3 | In Progress|  |
 | 2. Catálogo de Labels & Cadeia MkDocs/index | 0/? | Not started | - |
 | 3. pt-br nas 5 Superfícies | 0/? | Not started | - |
 | 4. Gêmeos PowerShell, Prosa & Release | 0/? | Not started | - |
