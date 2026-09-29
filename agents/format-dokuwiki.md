@@ -25,10 +25,12 @@ Done when the summary accounts for every markdown file under `$SOURCES`.
 ### 2. Convert
 
 ```bash
-$SCRIPT_RUNNER "$SKILL_DIR/scripts/to-dokuwiki$SCRIPT_EXT" dokuwiki-out $(find "$SOURCES" -name '*.md' | sort)
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/to-dokuwiki$SCRIPT_EXT" dokuwiki-out "$OUTPUT_LANG" $(find "$SOURCES" -name '*.md' | sort)
 ```
 
 Done when the script exits 0 and reports one `Converted` line per input file.
+
+`OUTPUT_LANG` comes from the dispatch prompt, never from the environment — same mechanism as `format-mkdocs.md`. An unknown or missing value stops the script with the list of supported languages (`en`, `pt-br`); there is no silent fallback.
 
 ## What the script produces (reference)
 

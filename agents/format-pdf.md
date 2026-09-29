@@ -25,10 +25,12 @@ Done when every discovered file is on the list.
 ### 2. Build the PDF (companion script — primary path)
 
 ```bash
-$SCRIPT_RUNNER "$SKILL_DIR/scripts/to-pdf$SCRIPT_EXT" specs-book.pdf <ordered files...>
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/to-pdf$SCRIPT_EXT" specs-book.pdf "$OUTPUT_LANG" <ordered files...>
 ```
 
 The script concatenates, warns about missing files instead of skipping silently, and tries the available engines in order. Done when it exits 0 and `specs-book.pdf` exists with non-zero size.
+
+`OUTPUT_LANG` comes from the dispatch prompt, never from the environment — same mechanism as `format-mkdocs.md`. An unknown or missing value stops the script with the list of supported languages (`en`, `pt-br`); there is no silent fallback.
 
 ### 3. Manual fallback (script unreachable)
 
@@ -44,6 +46,10 @@ Only when the script path fails, replicate it:
 pandoc specs-book.md -o specs-book.pdf --toc --toc-depth=3 --pdf-engine=weasyprint \
   || pandoc specs-book.md -o specs-book.pdf --toc --toc-depth=3 --pdf-engine=wkhtmltopdf
 ```
+
+When `$OUTPUT_LANG` is `pt-br`, both pandoc invocations above also take
+`-M lang=pt-BR -M toc-title=Sumário`. With `en`, neither flag is passed. The
+fallback must replicate the script's locale projection, not diverge from it.
 
 Same completion criterion as step 2.
 
