@@ -3,6 +3,12 @@
 # Usage: generate-mkdocs.sh [project_name] [specs_dir] <output_lang>
 set -euo pipefail
 
+# Pin a UTF-8 locale so the title-case sed pipeline below operates
+# character-wise, not byte-wise — under LC_ALL=C, accented basenames
+# (e.g. autenticação) are corrupted into mojibake. Preserve any locale
+# the caller already set explicitly.
+export LC_ALL="${LC_ALL:-C.UTF-8}"
+
 PROJECT_NAME="${1:-Project}"
 SPECS_DIR="${2:-.specs}"
 OUTPUT_LANG="${3:?Usage: generate-mkdocs.sh [project_name] [specs_dir] <output_lang> — output_lang required, supported: en, pt-br}"
