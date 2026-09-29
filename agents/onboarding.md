@@ -10,8 +10,12 @@ Interview the user to set every variable in [CONTEXT.md](../CONTEXT.md) (§Varia
    - developer — detailed code docs, API references
    - stakeholder — executive summaries, roadmaps, decisions
    - general — feature overviews, tutorials
-4. **FORMAT** — which output format? Present the route table from SKILL.md.
-5. **Deployment** — hosted or local-only?
+4. **OUTPUT_LANG** — `en` \| `pt-br` (canonical tokens, lowercase; use one of these exactly):
+   - en — English chrome, byte-identical to today's output
+   - pt-br — Portuguese (Brazil) chrome
+   Default: `pt-br` when the user has no preference.
+5. **FORMAT** — which output format? Present the route table from SKILL.md.
+6. **Deployment** — hosted or local-only?
 
 ## Resolve SKILL_DIR
 
@@ -44,4 +48,4 @@ Return to the orchestrator only when all of these hold — if one cannot be sati
 - The `SOURCES` directory exists on disk
 - `SKILL_DIR` resolved non-empty
 
-Return the variables by their CONTEXT.md names (`PROJECT_NAME`, `SOURCES`, `AUDIENCE`, `FORMAT`, `OS_TYPE`, `SCRIPT_EXT`, `SCRIPT_RUNNER`, `SKILL_DIR`).
+Return the variables by their CONTEXT.md names (`PROJECT_NAME`, `SOURCES`, `AUDIENCE`, `OUTPUT_LANG`, `FORMAT`, `OS_TYPE`, `SCRIPT_EXT`, `SCRIPT_RUNNER`, `SKILL_DIR`).
