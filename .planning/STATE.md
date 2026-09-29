@@ -2,18 +2,19 @@
 gsd_state_version: "1.0"
 current_phase: 03
 current_phase_name: pt-br-nas-5-superf-cies
+current_plan: 3
 status: executing
-stopped_at: Wave 1 complete — 03-01 done
-last_updated: "2026-09-29T20:02:23.000Z"
+stopped_at: Wave 2 complete — 03-02 done
+last_updated: "2026-09-29T20:18:02.131Z"
 last_activity: 2026-09-29
 last_activity_desc: Plan 03-01 executed — catálogo pt-br.lang, theme.language condicional, gate catalog_parity
-state_head: c1e5dae49347b9537cd5740f4b1eca6ce230e4f3
+state_head: 442d055d7237dd0f05078bd494646eea85af6c57
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 8
-  completed_plans: 6
-  percent: 62
+  completed_plans: 7
+  percent: 50
 ---
 
 # Project State
@@ -27,12 +28,14 @@ See: .planning/PROJECT.md (updated 2026-09-28)
 
 ## Current Position
 
-Phase: 03 (pt-br-nas-5-superf-cies) — Wave 1 complete
-Plan: 03-01 done — 03-02 next (Wave 2, blocked on Wave 1)
-Status: Executing
+Current Plan: 3
+Total Plans in Phase: 3
+Phase: 03 (pt-br-nas-5-superf-cies) — Wave 2 complete
+Plan: 03-02 done — 03-03 next
+Status: Ready to execute
 Last activity: 2026-09-29 — Plano 03-01 executado (catálogo pt-br.lang, theme.language condicional, gate catalog_parity)
 
-Progress: [██████░░░░] 62%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
@@ -61,6 +64,7 @@ Progress: [██████░░░░] 62%
 |------|----------|-------|-------|
 | Phase 01 P01 | 14min | 2 tasks | 20 files |
 | Phase 03 P01 | 57min | 3 tasks | 4 files |
+| Phase 03 P02 | 45min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -76,6 +80,9 @@ Recent decisions affecting current work:
 - 03-01: `pt-br.lang` espelha ordem/agrupamento de `en.lang` para diff lado a lado legível entre catálogos
 - 03-01: `THEME_LANGUAGE` é variável de script MAIÚSCULA (não chave de catálogo) para não colidir com o filtro `[a-z]` do gate `keyset_equality`
 - 03-01: `missing_key_halts` detecta `catalog_basename` opcional pelo sufixo `.lang`, preservando as chamadas antigas sem alteração de assinatura
+- [Phase 03]: 03-02: PANDOC_LANG_OPTS inserido em todas as 5 invocações de pandoc de to-pdf.sh, não só na primeira — a cascata de fallback de engines precisa preservar a locale em qualquer engine que rode
+- [Phase 03]: 03-02: gate pandoc_lang_flags prova -M lang/-M toc-title com stub executável de pandoc (sem engine real), cobrindo a linha de comando efetiva montada pelo script
+- [Phase 03]: 03-02: bootstrap do catálogo em to-dokuwiki.sh roda ANTES da guarda de pandoc, para que CHROME-03 halte nomeando a chave ausente mesmo num host sem pandoc
 
 ### Pending Todos
 
@@ -98,6 +105,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-29T20:02:23.000Z
-Stopped at: Wave 1 complete — 03-01 done
+Last session: 2026-09-29T20:18:02.092Z
+Stopped at: Wave 2 complete — 03-02 done
 Resume file: None
