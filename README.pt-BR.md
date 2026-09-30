@@ -6,6 +6,8 @@
 
 Converte arquivos markdown gerados por sessões _spec-driven_ (tlc-spec-driven, ai-harness-engineer, etc.) em documentação no formato que você escolher.
 
+Veja [CHANGELOG.md](./CHANGELOG.md) para as notas de release, incluindo o flip de default de `OUTPUT_LANG`.
+
 ## Formatos suportados
 
 | Formato | Descrição |
