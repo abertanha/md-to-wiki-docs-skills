@@ -2,18 +2,18 @@
 gsd_state_version: "1.0"
 current_phase: 04
 current_phase_name: Gêmeos PowerShell, Prosa & Release
-current_plan: 3
+current_plan: 4
 status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-09-30T17:33:47.225Z"
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-09-30T17:54:54.900Z"
 last_activity: 2026-09-30
 last_activity_desc: Phase 04 execution started
-state_head: 3f7300bde3bfd8602767507280fa31eb4e0aace8
+state_head: 9a213e5a84b884f718f216d459f18301e8843491
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 13
-  completed_plans: 10
+  completed_plans: 11
   percent: 50
 ---
 
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-09-28)
 
 ## Current Position
 
-Current Plan: 3
+Current Plan: 4
 Total Plans in Phase: 5
 Phase: 04 (Gêmeos PowerShell, Prosa & Release) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-09-30 — Phase 04 execution started
 
@@ -68,6 +68,7 @@ Progress: [█████░░░░░] 50%
 | Phase 03 P03 | 25min | 3 tasks | 6 files |
 | Phase 04 P01 | 126min | 3 tasks | 6 files |
 | Phase 04 P02 | 51min | 3 tasks | 5 files |
+| Phase 04 P03 | 20min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,9 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-01: no_hardcoded_chrome precisou stripar tokens $variavel antes de comparar needle — nomes de variável PowerShell em camelCase derivados da chave carregam o próprio fragmento de palavra e geravam falso positivo
 - [Phase 04]: D-22/D-23/D-24: glossário anti-calque em CONTEXT.md com região de sentinela ignorada, denylist v1 restrita a formas ausentes do VOLP, regra de desempate via VOLP
 - [Phase 04]: tests/wiki-links.sh extrai as expressões sed DO arquivo do agent (não uma cópia) para nunca divergir silenciosamente do que é publicado
+- [Phase 04]: 04-03: no_hardcoded_chrome strip também ${var} (forma com chaves), não só $var — generate-mkdocs.ps1 introduziu a forma com chaves
+- [Phase 04]: 04-03: declared_keys_complete generalizado para unir todo array @(...) do arquivo — to-pdf.ps1 declara pdf_toc_title condicionalmente, só no ramo pt-br
+- [Phase 04]: 04-03: pwsh_accented_dir_survives adaptada por gêmeo — to-dokuwiki.ps1 prova por existência de arquivo, to-pdf.ps1 por conteúdo, generate-mkdocs.ps1 por exit-code (nav sem -Recurse, defeito pré-existente fora de escopo)
 
 ### Pending Todos
 
@@ -114,6 +118,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-30T17:33:47.180Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-09-30T17:54:54.865Z
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None
