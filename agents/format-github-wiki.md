@@ -14,6 +14,26 @@ If any variable from CONTEXT.md is unset, ask the orchestrator before running.
 other format agents. An unknown or missing value stops the flow with the list of supported
 languages (`en`, `pt-br`); there is no silent fallback.
 
+When `OUTPUT_LANG` is `pt-br`, all authorial prose of `Home.md` and `_Sidebar.md` follows the
+glossary below. This copy is inlined DELIBERATELY, not duplication to be pruned — a rule that
+lives only behind a link has no force under generation pressure (this project's own prior
+research, Pitfall 4). Full rule: [CONTEXT.md, section "Glossário anti-calque"](../CONTEXT.md).
+
+<!-- no-calques:ignore-start -->
+
+Denylist (anglicized verb → correct form): `deployar` → implantar/publicar; `printar` →
+imprimir; `commitar` → registrar/confirmar; `pushear` → enviar; `linkar` → ligar/referenciar;
+`buildar` → compilar/construir; `debugar` → depurar; `startar` → iniciar; `mergear` →
+integrar/incorporar; `upar` → enviar/subir. Technical terms kept in full English, never
+Portuguese-ized: `stack`, `roadmap`, `design`, `deploy`, `build`, `commit`, `push`, `branch`,
+`merge`, `release`, `wiki`, `spec`, `pull request`. Banned LLM tics: `é importante notar`,
+`em resumo`, `convém destacar`, `vale ressaltar`, `vale notar`, `em última análise`.
+
+<!-- no-calques:ignore-end -->
+
+The rest of this agent's own runbook prose stays in English — it is instruction prose for the
+model, not published output, and translating it is not this phase's goal.
+
 ## Steps
 
 ### 1. Discover sources

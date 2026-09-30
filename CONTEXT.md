@@ -28,6 +28,50 @@ Authority: `docs/chrome-inventory.md` — the map of chrome keys to their curren
 
 Note: `MDW_INDEX_OUT` (read by `scripts/generate-index.sh:19`) is a pre-existing output-path environment variable, not a pattern to follow — `OUTPUT_LANG` never reads from the environment; it is assigned during onboarding and passed via dispatch prompt like every other variable.
 
+## Glossário anti-calque
+
+Consequência direta da política acima: quando `OUTPUT_LANG` é `pt-br`, a prosa autoral que os
+agents escrevem em runtime (não o chrome vindo do catálogo) segue este glossário. A denylist
+executável que DECIDE o gate mora em `tests/no-calques.sh` — esta seção é a fonte da REGRA, o
+script é a fonte do PREDICADO; não restate a lista em terceiro lugar.
+
+A denylist e a allowlist abaixo ficam dentro da região delimitada pelos dois comentários que
+seguem, porque o próprio gate remove essa região antes de varrer (sem isso, o glossário — que
+precisa citar os calques para proibi-los — reprovaria a si mesmo). Qualquer prosa nova sobre
+calque entra DENTRO desta região.
+
+<!-- no-calques:ignore-start -->
+
+**Denylist — verbos anglicizados sem registro no VOLP.** Para cada um, a forma a usar:
+`deployar` → implantar ou publicar; `printar` → imprimir; `commitar` → registrar ou confirmar;
+`pushear` → enviar; `linkar` → ligar ou referenciar; `buildar` → compilar ou construir;
+`debugar` → depurar; `startar` → iniciar; `mergear` → integrar ou incorporar; `upar` → enviar ou
+subir. O gate cobre as flexões de cada um (infinitivo, primeira e terceira do pretérito,
+gerúndio e particípio, singular e plural).
+
+**Allowlist — formas consagradas que NÃO são calque.** Registradas no VOLP e portanto
+permitidas: `checar`, `deletar`, `resetar`, `refatorar`, `acessar`, `escanear`. Termos técnicos
+mantidos em inglês integral, nunca aportuguesados: `stack`, `roadmap`, `design`, `deploy`
+(substantivo), `build` (substantivo), `commit` (substantivo), `push` (substantivo), `branch`,
+`merge` (substantivo), `release`, `wiki`, `spec`, `pull request`. A allowlist é declarada
+explicitamente — nunca um default silencioso, mesma disciplina da allowlist do glossário em
+`tests/no-mixed-output.sh`.
+
+**Tiques de LLM — banidos junto, mesma porta de completion.** `é importante notar`, `em resumo`,
+`convém destacar`, `vale ressaltar`, `vale notar`, `em última análise`. São marcadores de prosa
+gerada que não acrescentam informação; o alvo é a prosa, não o autor.
+
+<!-- no-calques:ignore-end -->
+
+**Regra de desempate (D-24, 2026-09-30).** Quando aparecer uma forma nova em dúvida: se o VOLP
+registra a forma aportuguesada, ela é consagrada e fica permitida; se não registra, o termo fica
+em inglês integral e a forma aportuguesada entra na denylist de `tests/no-calques.sh`. A decisão
+é registrada aqui, com a data, para que o gate e a prosa nunca discordem.
+
+**Fronteira de escopo.** O glossário rege o CHROME e a PROSA DE CHROME. O conteúdo dos specs do
+usuário nunca é reescrito nem traduzido (Out of Scope do `PROJECT.md`), e os caminhos, nomes de
+página, âncoras e nomes de arquivo gerados nunca são traduzidos em nenhum idioma (CHROME-04).
+
 ## Script-call convention
 
 ```bash
