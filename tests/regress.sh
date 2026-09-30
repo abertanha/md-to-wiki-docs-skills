@@ -84,11 +84,22 @@ run_chain() { # <dest_dir>
       .specs/features/autenticação/spec.md \
       .specs/quick/fix-nav/spec.md
     # Swagger surface: render the template instance exactly as the agent
-    # flow does (placeholder substitution only).
+    # flow does (placeholder substitution only). Resolve the title suffix
+    # from the en catalog and leave {{LANG_ATTR}} empty — that empty
+    # substitution IS the additive en behavior (no lang attribute emitted).
     mkdir -p swagger-ui
-    sed -e 's/{{PROJECT_NAME}}/TestProject/g' \
-        -e 's|{{OPENAPI_YML}}|openapi.yml|g' \
-        "$TEMPLATES/swagger-ui.html" > swagger-ui/index.html
+    (
+      set -a
+      # shellcheck source=/dev/null
+      . "$TEMPLATES/lang/en.lang"
+      set +a
+      : "${swagger_title_suffix:?key swagger_title_suffix not found in catalog}"
+      sed -e 's/{{PROJECT_NAME}}/TestProject/g' \
+          -e 's|{{OPENAPI_YML}}|openapi.yml|g' \
+          -e "s|{{TITLE_SUFFIX}}|${swagger_title_suffix}|g" \
+          -e 's|{{LANG_ATTR}}||g' \
+          "$TEMPLATES/swagger-ui.html" > swagger-ui/index.html
+    )
   )
   mkdir -p "$DEST/mkdocs" "$DEST/pdf" "$DEST/swagger"
   cp "$WORK/mkdocs.yml" "$DEST/mkdocs/mkdocs.yml"

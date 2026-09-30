@@ -4,6 +4,35 @@ Items discovered during execution that are out of scope for the current
 plan (pre-existing, unrelated to the task's own diff). Not fixed per the
 SCOPE BOUNDARY rule; logged here for future cleanup.
 
+## 03-03 — Tarefa 1: `shellcheck`/`shfmt` pre-existing divergence in `tests/regress.sh`
+
+- **Found during:** Tarefa 1 (swagger-ui.html parametrizado + perna Swagger
+  de `tests/regress.sh`)
+- **Observation:** confirmed via `git show HEAD:tests/regress.sh` (pre-edit
+  copy): `shellcheck` already reported two SC2015 info-level findings
+  (`A && B || C is not if-then-else`, lines 112 and 169 of the original) and
+  `shfmt -d` already reported a 276-line diff (2-space indentation vs
+  shfmt's default tab/space rules) before any edit in this task — the same
+  repo-wide condition documented for `scripts/generate-mkdocs.sh` and
+  `tests/fail-closed.sh` in the 03-01 entries below. The new Swagger-leg
+  code added in this task follows the file's existing 2-space convention,
+  so it extends the same pre-existing diff shape rather than introducing a
+  new one (confirmed: `shfmt -d` diff grew only by the added lines,
+  reformatted in the same style as the surrounding, already-divergent code).
+  One NEW shellcheck finding (SC2154, `swagger_title_suffix` referenced but
+  not assigned) WAS introduced by this task's own diff and WAS fixed here —
+  a `: "${swagger_title_suffix:?...}"` fail-closed guard was added before
+  use, matching the `:?` idiom already used across the codebase, which
+  shellcheck recognizes as a declaration and which silences the warning.
+- **Decision:** Pre-existing SC2015/shfmt divergence not fixed — reformatting
+  the whole file is an unrelated, large-surface change (violates "menor
+  diff correto"). The new SC2154 caused by this task's own change was
+  fixed, per SCOPE BOUNDARY ("only auto-fix issues directly caused by the
+  current task's changes").
+- **Recommendation:** same as the 03-01 entry below — a dedicated
+  formatting-only plan should decide on and apply a repo-wide `shfmt`
+  config across `scripts/*.sh` and `tests/*.sh`.
+
 ## 03-01 — Tarefa 3: `shfmt` pre-existing divergence in `tests/fail-closed.sh`
 
 - **Found during:** Tarefa 3 (gate de paridade en↔pt-br e probes pt-br)
