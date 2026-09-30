@@ -123,6 +123,21 @@ require_pwsh() { # <gate_name> — prints SKIPPED and returns 1 when pwsh is abs
 	return 0
 }
 
+# <status> <md_fallback_path> — true when a to-pdf.ps1 exit is either a
+# clean success OR the D-10-tolerated no-engine outcome: non-zero status,
+# but the markdown fallback IS on disk, proof the book was written before
+# the engine probe failed closed. tests/regress.sh's run_chain_ps1 applies
+# this exact tolerance to the same invocation (`|| true` + file assertion);
+# every behavioral leg below that runs to-pdf.ps1 over the TWINS loop shares
+# this helper so the D-10 exception is expressed once, not reimplemented
+# per leg with drifting wording.
+pdf_status_tolerated() {
+	local status="$1" md_path="$2"
+	[ "$status" -eq 0 ] && return 0
+	[ -f "$md_path" ] && return 0
+	return 1
+}
+
 # =====================================================================
 # Structural gates (run on every host, no pwsh required)
 # =====================================================================
@@ -158,6 +173,10 @@ twins_dotsource_lib() {
 		fi
 	done
 	[ "$ok" -eq 1 ] && echo "OK: twins_dotsource_lib"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Gate: allowlist_before_path -----------------------------------------
@@ -178,6 +197,10 @@ allowlist_before_path() {
 		fi
 	done
 	[ "$ok" -eq 1 ] && echo "OK: allowlist_before_path"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Gate: banned_cmdlets ------------------------------------------------
@@ -217,6 +240,10 @@ bomless_writer() {
 		fi
 	done
 	[ "$ok" -eq 1 ] && echo "OK: bomless_writer"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Gate: declared_keys_complete -----------------------------------------
@@ -249,6 +276,10 @@ declared_keys_complete() {
 		fi
 	done
 	[ "$ok" -eq 1 ] && echo "OK: declared_keys_complete"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Gate: no_hardcoded_chrome ---------------------------------------------
@@ -281,6 +312,10 @@ no_hardcoded_chrome() {
 		done < <(grep -E '^[a-z][a-z0-9_]*=' "$CATALOG_EN")
 	done
 	[ "$ok" -eq 1 ] && echo "OK: no_hardcoded_chrome"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Gate: catalog_keys_exist ----------------------------------------------
@@ -306,6 +341,10 @@ catalog_keys_exist() {
 		done <<<"$used"
 	done
 	[ "$ok" -eq 1 ] && echo "OK: catalog_keys_exist"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Gate: theme_language_ptbr_only ----------------------------------------
@@ -442,6 +481,10 @@ pwsh_bad_language_halts() {
 		fi
 	done
 	[ "$ok" -eq 1 ] && echo "OK: pwsh_bad_language_halts"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Leg: pwsh_missing_key_halts -------------------------------------------
@@ -465,6 +508,10 @@ pwsh_missing_key_halts() {
 		fi
 	done
 	[ "$ok" -eq 1 ] && echo "OK: pwsh_missing_key_halts"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Leg: pwsh_intact_catalog_succeeds --------------------------------------
@@ -478,6 +525,10 @@ pwsh_intact_catalog_succeeds() {
 			sandbox=$(sandbox_new)
 			mapfile -t args < <(twin_canonical_args "$twin" "$lang")
 			out=$(cd "$sandbox" && pwsh -NoProfile -NonInteractive -File "scripts/${twin}" "${args[@]}" 2>&1) && status=0 || status=$?
+			if [ "$twin" = "to-pdf.ps1" ] && pdf_status_tolerated "$status" "$sandbox/out/specs-book.md"; then
+				rm -rf "$sandbox"
+				continue
+			fi
 			rm -rf "$sandbox"
 			if [ "$status" -ne 0 ]; then
 				echo "FAIL: pwsh_intact_catalog_succeeds ${twin} (${lang}) — status=${status}"
@@ -488,6 +539,10 @@ pwsh_intact_catalog_succeeds() {
 		done
 	done
 	[ "$ok" -eq 1 ] && echo "OK: pwsh_intact_catalog_succeeds"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Leg: pwsh_output_has_no_bom -------------------------------------------
@@ -497,10 +552,13 @@ pwsh_output_has_no_bom() {
 	for twin in "${TWINS[@]}"; do
 		sandbox=$(sandbox_new)
 		mapfile -t args < <(twin_canonical_args "$twin" en)
-		(cd "$sandbox" && pwsh -NoProfile -NonInteractive -File "scripts/${twin}" "${args[@]}" >/dev/null 2>&1)
-		status=$?
+		(cd "$sandbox" && pwsh -NoProfile -NonInteractive -File "scripts/${twin}" "${args[@]}" >/dev/null 2>&1) && status=0 || status=$?
 		out_path="$sandbox/$(twin_output_path "$twin")"
-		if [ "$status" -eq 0 ] && [ -f "$out_path" ]; then
+		# D-10: for to-pdf.ps1, twin_output_path IS the markdown fallback, so a
+		# tolerated no-engine exit (non-zero status, fallback on disk) is the
+		# SAME file this leg already inspects for a BOM — no separate path
+		# needed, just widen the success condition that gates the BOM check.
+		if { [ "$status" -eq 0 ] || { [ "$twin" = "to-pdf.ps1" ] && pdf_status_tolerated "$status" "$out_path"; }; } && [ -f "$out_path" ]; then
 			b=$(head -c3 "$out_path" | od -An -tx1 | tr -d ' \n')
 			if [ "$b" = "efbbbf" ]; then
 				echo "FAIL: pwsh_output_has_no_bom ${twin} — BOM found"
@@ -515,6 +573,10 @@ pwsh_output_has_no_bom() {
 		rm -rf "$sandbox"
 	done
 	[ "$ok" -eq 1 ] && echo "OK: pwsh_output_has_no_bom"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Leg: pwsh_accented_dir_survives ----------------------------------------
@@ -535,11 +597,14 @@ pwsh_accented_dir_survives() {
 	for twin in "${TWINS[@]}"; do
 		sandbox=$(sandbox_new)
 		mapfile -t args < <(twin_canonical_args "$twin" en)
-		(cd "$sandbox" && pwsh -NoProfile -NonInteractive -File "scripts/${twin}" "${args[@]}" >/dev/null 2>&1)
-		status=$?
+		(cd "$sandbox" && pwsh -NoProfile -NonInteractive -File "scripts/${twin}" "${args[@]}" >/dev/null 2>&1) && status=0 || status=$?
 		case "$twin" in
 		to-dokuwiki.ps1)
-			out_path="$sandbox/dokuwiki/data/pages/features/autenticação/spec.txt"
+			# DokuWiki page-id path conversion is FLAT with ':' as the
+			# namespace separator (CHROME-04), never a nested directory —
+			# the expectation below must match the same colon-joined
+			# convention scripts/to-dokuwiki.ps1 actually writes.
+			out_path="$sandbox/dokuwiki/data/pages/features:autenticação:spec.txt"
 			if [ "$status" -ne 0 ] || [ ! -f "$out_path" ]; then
 				echo "FAIL: pwsh_accented_dir_survives ${twin} — status=${status}, page not found at accented path"
 				FAIL=1
@@ -547,8 +612,11 @@ pwsh_accented_dir_survives() {
 			fi
 			;;
 		to-pdf.ps1)
+			# D-10: a tolerated no-engine exit still writes the markdown book
+			# before failing closed — content correctness is what this probe
+			# cares about, not the engine-dependent exit code.
 			generated=$(cat "$sandbox/out/specs-book.md" 2>/dev/null || true)
-			if [ "$status" -ne 0 ] || ! printf '%s\n' "$generated" | grep -qF 'authentication feature governs'; then
+			if ! pdf_status_tolerated "$status" "$sandbox/out/specs-book.md" || ! printf '%s\n' "$generated" | grep -qF 'authentication feature governs'; then
 				echo "FAIL: pwsh_accented_dir_survives ${twin} — status=${status}"
 				FAIL=1
 				ok=0
@@ -573,6 +641,10 @@ pwsh_accented_dir_survives() {
 		rm -rf "$sandbox"
 	done
 	[ "$ok" -eq 1 ] && echo "OK: pwsh_accented_dir_survives"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Leg: pwsh_pandoc_langopts ----------------------------------------------
@@ -629,6 +701,10 @@ STUB
 		rm -rf "$sandbox"
 	done
 	[ "$ok" -eq 1 ] && echo "OK: pwsh_pandoc_langopts"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Leg: pwsh_theme_language -----------------------------------------------
@@ -637,8 +713,7 @@ pwsh_theme_language() {
 	local sandbox status yaml ok=1
 
 	sandbox=$(sandbox_new)
-	(cd "$sandbox" && pwsh -NoProfile -NonInteractive -File "scripts/generate-mkdocs.ps1" TestProject .specs pt-br >/dev/null 2>&1)
-	status=$?
+	(cd "$sandbox" && pwsh -NoProfile -NonInteractive -File "scripts/generate-mkdocs.ps1" TestProject .specs pt-br >/dev/null 2>&1) && status=0 || status=$?
 	yaml=$(cat "$sandbox/docs/mkdocs.yml" 2>/dev/null || true)
 	rm -rf "$sandbox"
 	if [ "$status" -ne 0 ] || ! printf '%s\n' "$yaml" | grep -qE '^[[:space:]]*language: pt-BR'; then
@@ -648,8 +723,7 @@ pwsh_theme_language() {
 	fi
 
 	sandbox=$(sandbox_new)
-	(cd "$sandbox" && pwsh -NoProfile -NonInteractive -File "scripts/generate-mkdocs.ps1" TestProject .specs en >/dev/null 2>&1)
-	status=$?
+	(cd "$sandbox" && pwsh -NoProfile -NonInteractive -File "scripts/generate-mkdocs.ps1" TestProject .specs en >/dev/null 2>&1) && status=0 || status=$?
 	yaml=$(cat "$sandbox/docs/mkdocs.yml" 2>/dev/null || true)
 	rm -rf "$sandbox"
 	if [ "$status" -ne 0 ] || printf '%s\n' "$yaml" | grep -qE '^[[:space:]]*language:'; then
@@ -659,6 +733,10 @@ pwsh_theme_language() {
 	fi
 
 	[ "$ok" -eq 1 ] && echo "OK: pwsh_theme_language"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 # --- Leg: pwsh_dokuwiki_value_shape ------------------------------------------
@@ -674,8 +752,7 @@ pwsh_dokuwiki_value_shape() {
 	local sandbox status readme args first3 ok=1
 	sandbox=$(sandbox_new)
 	mapfile -t args < <(twin_canonical_args to-dokuwiki.ps1 en)
-	(cd "$sandbox" && pwsh -NoProfile -NonInteractive -File "scripts/to-dokuwiki.ps1" "${args[@]}" >/dev/null 2>&1)
-	status=$?
+	(cd "$sandbox" && pwsh -NoProfile -NonInteractive -File "scripts/to-dokuwiki.ps1" "${args[@]}" >/dev/null 2>&1) && status=0 || status=$?
 	readme=$(cat "$sandbox/dokuwiki/README.md" 2>/dev/null || true)
 	first3=$(head -c3 "$sandbox/dokuwiki/README.md" 2>/dev/null | od -An -tx1 | tr -d ' \n')
 	rm -rf "$sandbox"
@@ -701,6 +778,10 @@ pwsh_dokuwiki_value_shape() {
 		ok=0
 	fi
 	[ "$ok" -eq 1 ] && echo "OK: pwsh_dokuwiki_value_shape"
+	return 0 # tail idiom above can return non-zero when ok=0; without this,
+	# set -e would abort the WHOLE suite here (bare function call at the
+	# bottom of the script), skipping every gate after this one — exactly
+	# the silent-partial-run failure mode this harness exists to prevent.
 }
 
 lib_single_source

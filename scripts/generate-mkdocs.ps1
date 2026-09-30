@@ -57,6 +57,14 @@ $nav = @"
   - ${navHome}: index.md
 "@
 
+# D-16-class fix (mirrors generate-index.ps1's Resolve-Path fix): derive a
+# path relative to cwd instead of stripping a fixed-width prefix from
+# $file.FullName, which Get-ChildItem always returns absolute — the previous
+# regex (`^.[/\\]`) never matched a Unix absolute path (no single leading
+# char is followed by a slash), so it silently left the full host temp-dir
+# path in the published nav entry (T-04-08-class information disclosure).
+$cwd = (Get-Location).ProviderPath
+
 Get-ChildItem "$SpecsDir" -Directory | Sort-Object Name | ForEach-Object {
   $dir = $_.FullName
   $name = $_.Name
@@ -68,7 +76,20 @@ Get-ChildItem "$SpecsDir" -Directory | Sort-Object Name | ForEach-Object {
   $nav += "`n  - $label`:"
   foreach ($file in $mdFiles) {
     $fileLabel = (($file.BaseName -replace '-', ' ') -replace '\b\w', { $_.Value.ToUpper() })
-    $relPath = $file.FullName -replace '^.[/\\]', '' -replace '\\', '/'
+
+    $relPath = $null
+    try {
+      $relPath = Resolve-Path -Relative -Path $file.FullName -ErrorAction Stop
+    } catch {
+      $relPath = $file.FullName
+    }
+    if ($relPath.StartsWith($cwd)) {
+      $relPath = $relPath.Substring($cwd.Length)
+    }
+    $relPath = $relPath -replace '\\', '/'
+    $relPath = $relPath -replace '^\./', ''
+    $relPath = $relPath -replace '^/', ''
+
     $nav += "`n    - $fileLabel`: $relPath"
   }
   $nav += "`n"

@@ -58,7 +58,13 @@ foreach ($file in $Files) {
   $pageId = $relative -replace '[/\\]', ':'
   $pagePath = "$pagesDir/$pageId.txt"
 
-  $parent = Split-Path $pagePath -Parent
+  # [System.IO.Path]::GetDirectoryName, not Split-Path -Parent: the page-id
+  # separator IS ':' (CHROME-04), and Split-Path mis-parses a relative path
+  # whose last segment contains ':' as a provider-qualified drive, returning
+  # an empty parent and failing New-Item. GetDirectoryName does plain string
+  # splitting on the path separator, with no drive semantics, mirroring the
+  # .sh twin's `dirname` (to-dokuwiki.sh:57).
+  $parent = [System.IO.Path]::GetDirectoryName($pagePath)
   New-Item -ItemType Directory -Path $parent -Force | Out-Null
 
   pandoc "$file" -f markdown -t dokuwiki -o "$pagePath"

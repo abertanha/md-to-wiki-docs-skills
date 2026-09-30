@@ -10,17 +10,73 @@ regressão silenciosamente e é proibido.
 ## Baseline da captura
 
 - `pandoc --version`: pandoc 3.7.0.2 (versão do host WSL2 Ubuntu 24.04)
-- `pwsh --version`: **ainda não disponível no host de execução do plano
-  `04-04`** — a perna `.ps1` de `tests/regress.sh` foi IMPLEMENTADA nesta
-  fase (deixou de ser stub): o interpretador é invocado com o perfil de
+- `pwsh --version`: **PowerShell 7.6.5** — capturado na Tarefa 3 do plano
+  `04-04`, host WSL2 Ubuntu 24.04, `pwsh` instalado via `snap install
+  powershell --classic`. O interpretador é invocado com o perfil de
   usuário desabilitado (`pwsh -NoProfile -NonInteractive -File`) em toda
   chamada, para que a captura não dependa de configuração da máquina de
   quem captura. Em hosts Linux/WSL sem `pwsh` o harness termina exit 3
-  (regime SKIPPED correto, não um defeito). O campo de versão real fica
-  **pendente**: a Tarefa 3 deste plano é quem o preenche, com a saída de
-  `pwsh --version`, assim que a captura rodar num host com PowerShell 7.
+  (regime SKIPPED correto, não um defeito). Este host não tem engine de
+  PDF (nem `weasyprint` nem `wkhtmltopdf`): a superfície PDF foi capturada
+  sob a exceção D-10 (ver abaixo), como o lado `.sh` já era.
+- Commit SHA da captura `.ps1` (golden-ps1/ adicionado, Tarefa 3 do plano
+  `04-04`): `(registrado no commit seguinte desta mesma tarefa — o hash
+  deste commit só existe depois de criado)`
 - Commit SHA da captura (golden-sh/dokuwiki adicionado): `3c81fe2`
 - Commit SHA da captura inicial (goldens engine-less .sh): `f2faeb9`
+
+**Três bugs pré-existentes nos gêmeos `.ps1`, achados pela primeira
+execução real desta perna (Tarefa 3, plano `04-04`) e corrigidos nesta
+mesma tarefa** — nenhum host anterior tinha `pwsh`, então nenhum destes
+jamais tinha sido exercitado de verdade:
+
+- **`to-pdf.ps1` — vazamento de argumentos posicionais.** O bloco `param()`
+  declarava `[string[]]$Files` sem `ValueFromRemainingArguments`, e o
+  binder posicional do PowerShell NÃO junta os argumentos restantes num
+  parâmetro de array da forma que a pesquisa da fase assumiu (a hipótese
+  de menor confiança de toda a `04-RESEARCH.md`, e a que se provou
+  errada): sem o atributo, `$Files` recebia só o PRIMEIRO arquivo, e todo
+  o resto silenciosamente caía em `$args` sem nenhum erro. Toda invocação
+  multi-arquivo de `to-pdf.ps1` produzia um livro de UM arquivo só. Fix:
+  `[Parameter(ValueFromRemainingArguments = $true)]` no parâmetro `$Files`.
+- **`to-dokuwiki.ps1` — `Split-Path -Parent` vazio em page-id com `:`.**
+  O separador de page-id do DokuWiki É o `:` (CHROME-04), e `Split-Path`
+  interpreta um `:` no último segmento de um caminho RELATIVO como
+  qualificador de unidade, devolvendo string vazia como diretório-pai e
+  fazendo `New-Item` falhar (silenciosamente tolerado só porque o
+  diretório-pai já existia via `$pagesDir`, mas imprimindo erro no
+  console). Fix: `[System.IO.Path]::GetDirectoryName()` no lugar de
+  `Split-Path -Parent`, que faz split de string puro sem semântica de
+  drive — mesmo padrão que `dirname` no lado `.sh`.
+- **`generate-mkdocs.ps1` — caminho absoluto do host vazando no nav do
+  `mkdocs.yml`.** O mesmo bug de classe D-16 já corrigido em
+  `generate-index.ps1` (plano `04-01`) nunca tinha sido replicado aqui: a
+  regex `-replace '^.[/\\]', ''` nunca casa contra um caminho absoluto
+  Unix (`/tmp/...`), então `$file.FullName` — sempre absoluto — vazava
+  inteiro para dentro do nav. Corrigido com a MESMA abordagem de
+  `Resolve-Path -Relative` + fallback de remoção de prefixo de `$cwd`.
+
+**Dois bugs de robustez em `tests/ps1-contract.sh`, achados pelo mesmo
+motivo** — o harness nunca tinha rodado uma perna comportamental real até
+esta tarefa:
+
+- **Aborto prematuro da suíte inteira sob `set -e`.** Nove das pernas
+  comportamentais/estruturais terminavam com o idioma
+  `[ "$ok" -eq 1 ] && echo "OK: ..."`; quando `ok=0`, essa expressão
+  devolve status 1, e por ser a última instrução de uma função chamada
+  nua no fim do script, `set -e` encerrava o processo ALI — pulando toda
+  perna seguinte sem reportar, o oposto do que o cabeçalho do arquivo
+  documenta ("Never silent about a partial run"). Fix: `return 0`
+  explícito ao final de cada uma dessas funções.
+- **`pwsh_intact_catalog_succeeds`, `pwsh_output_has_no_bom` e
+  `pwsh_accented_dir_survives` não toleravam a exceção D-10** (status
+  não-zero de `to-pdf.ps1` num host sem engine de PDF) — exatamente a
+  situação deste host. Fix: helper compartilhado `pdf_status_tolerated`,
+  espelhando a MESMA tolerância que `tests/regress.sh` já aplicava.
+  `pwsh_accented_dir_survives` também esperava um caminho ANINHADO
+  (`features/autenticação/spec.txt`) para `to-dokuwiki.ps1` em vez do
+  formato FLAT com `:` que o gêmeo realmente escreve — corrigido para o
+  caminho real.
 
 **Perna DokuWiki version-pinned:** a saída do pandoc writer `dokuwiki` pode
 variar entre versões. O golden `tests/fixtures/golden-sh/dokuwiki/` está

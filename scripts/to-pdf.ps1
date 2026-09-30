@@ -1,8 +1,19 @@
 # to-pdf.ps1 — Generate PDF from selected markdown files
 # Usage: to-pdf.ps1 <output.pdf> <output_lang> <file1.md> [file2.md ...]
+#
+# `ValueFromRemainingArguments` is REQUIRED on $Files: a simple (non-bound)
+# positional array parameter in PowerShell does NOT slurp trailing args the
+# way every other twin's `$args[N..]` slice does — without this attribute,
+# `$Files` silently binds ONLY THE FIRST file and every remaining path
+# spills into the unused `$args` array with no error, so `to-pdf.ps1`
+# quietly produced a one-file book for every multi-file invocation. This
+# was flagged as the lowest-confidence claim in the phase research and
+# turned out to be backwards; confirmed empirically via tests/ps1-contract.sh's
+# pwsh_accented_dir_survives leg during plan 04-04.
 param(
   [string]$Output,
   [string]$OutputLangRaw,
+  [Parameter(ValueFromRemainingArguments = $true)]
   [string[]]$Files
 )
 

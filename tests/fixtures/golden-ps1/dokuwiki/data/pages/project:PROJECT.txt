@@ -1,0 +1,29 @@
+====== Project Overview ======
+
+TestProject is a small sample project used to exercise the spec-driven documentation pipeline. It exists so that every generated surface can be checked against a known, stable set of sources.
+
+===== Vision =====
+
+Keep project documentation as close to the code as possible by treating specs as the single source of truth and generating all published views from them.
+
+===== Goals =====
+
+  * Provide a predictable home for project, codebase, and feature specs
+  * Generate the landing page, site skeleton, and book view from one tree
+  * Keep internal links valid across every published surface
+
+===== Scope =====
+
+In scope:
+
+  * Specs under ''%%project/%%'', ''%%codebase/%%'', ''%%features/%%'', and ''%%quick/%%''
+  * Generated navigation, index page, and book views
+
+Out of scope:
+
+  * Translating spec content
+  * Hosting or deploying the generated site
+
+===== Audience =====
+
+Readers are developers joining the project who need orientation fast, plus stakeholders who only want goals and milestones.
