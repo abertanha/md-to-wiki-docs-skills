@@ -22,6 +22,7 @@
 site_name_suffix='— Especificações'
 site_description='Documentação gerada automaticamente a partir de desenvolvimento spec-driven'
 nav_home='Início'
+nav_issues='Issues'
 
 # superfície index (scripts/generate-index.sh — consumida neste plano)
 index_tagline='Documentação gerada automaticamente a partir de sessões de desenvolvimento spec-driven.'
@@ -39,6 +40,7 @@ label_roadmap='Roadmap'
 label_state_decisions='Estado e Decisões'
 label_setup_guide='Guia de Configuração'
 label_contributing='Contribuição'
+label_references='Referências'
 table_section='Seção'
 table_description='Descrição'
 table_feature='Funcionalidade'
@@ -56,6 +58,7 @@ generated_by='Gerado por [md-to-wiki](https://github.com/abertanha/md-to-wiki-do
 
 # superfície PDF (scripts/to-pdf.sh — sem consumidor nesta fase; consumida na Phase 3)
 pdf_title='Especificações'
+pdf_generated_on='Gerado em %s'
 pdf_toc_title='Sumário'  # pt-br exclusiva (D-06) — en não passa -M toc-title ao pandoc (comportamento atual preservado)
 
 # superfície Swagger (templates/swagger-ui.html — sem consumidor nesta fase; consumida na Phase 3)
