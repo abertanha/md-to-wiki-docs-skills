@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 current_phase: 04
 current_phase_name: Gêmeos PowerShell, Prosa & Release
 current_plan: 5
-status: executing
-stopped_at: Completed 04-04-PLAN.md
-last_updated: "2026-09-30T18:50:19.772Z"
+status: verifying
+stopped_at: Completed 04-05-PLAN.md — Phase 04 complete, ready for verification
+last_updated: "2026-09-30T19:05:13.218Z"
 last_activity: 2026-09-30
 last_activity_desc: Phase 04 execution started
-state_head: 32f92fdd2c3a7f617a83b1b70e02737b11ee4630
+state_head: 333f9adf5a348e5c4921d18181f4e30e7e429119
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 13
-  completed_plans: 12
+  completed_plans: 13
   percent: 50
 ---
 
@@ -32,7 +32,7 @@ Current Plan: 5
 Total Plans in Phase: 5
 Phase: 04 (Gêmeos PowerShell, Prosa & Release) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-30 — Phase 04 execution started
 
 Progress: [█████░░░░░] 50%
@@ -70,6 +70,7 @@ Progress: [█████░░░░░] 50%
 | Phase 04 P02 | 51min | 3 tasks | 5 files |
 | Phase 04 P03 | 20min | 3 tasks | 5 files |
 | Phase 04 P04 | 45min | 3 tasks | 9 files |
+| Phase 04 P05 | 62min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,8 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-03: pwsh_accented_dir_survives adaptada por gêmeo — to-dokuwiki.ps1 prova por existência de arquivo, to-pdf.ps1 por conteúdo, generate-mkdocs.ps1 por exit-code (nav sem -Recurse, defeito pré-existente fora de escopo)
 - [Phase 04]: Três bugs pré-existentes nos gêmeos .ps1 (to-pdf.ps1 argumentos posicionais, to-dokuwiki.ps1 Split-Path com ':', generate-mkdocs.ps1 caminho absoluto vazando) corrigidos in-line ao serem expostos pela primeira execução real da perna .ps1 (04-04)
 - [Phase 04]: tests/ps1-contract.sh corrigido: set -e abortava a suíte na primeira falha comportamental, e três pernas não toleravam a exceção D-10 (to-pdf.ps1 sem engine de PDF) — helper pdf_status_tolerated compartilhado (04-04)
+- [Phase 04]: 04-05: ressalva de paridade .ps1 removida dos READMEs e substituída por documentação afirmativa de OUTPUT_LANG; SKILL.md verificado script por script contra o código (paridade posicional confirmada verdadeira); CHANGELOG.md criado com a nota de release do flip de default pt-br
+- [Phase 04]: 04-05: bateria completa dos 6 harnesses rodou 100% verde com pwsh no PATH (zero FAIL, zero SKIPPED); golden-sh/ confirmado sem diff desde a abertura da fase; critério 5 do ROADMAP (execução pt-br com engines reais) registrado como parcial — host de dev sem mkdocs-material/engine de PDF
 
 ### Pending Todos
 
@@ -121,6 +124,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-30T18:50:19.740Z
-Stopped at: Completed 04-04-PLAN.md
+Last session: 2026-09-30T19:05:13.179Z
+Stopped at: Completed 04-05-PLAN.md — Phase 04 complete, ready for verification
 Resume file: None

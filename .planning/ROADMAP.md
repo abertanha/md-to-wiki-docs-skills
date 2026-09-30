@@ -112,7 +112,7 @@ Plans:
   4. Denylist de calques verificável por grep roda como critério de completion — zero ocorrência de calques ("deployar", "printar", "commitar", …) na prosa dos agents e na saída pt-br
   5. Release: `tests/regress.sh` wired no fluxo, README/README.pt-BR e rubric delta atualizados, nota de release documentando o default flip e que `OUTPUT_LANG=en` preserva o comportamento anterior; execução pt-br end-to-end num host com engines
 
-**Plans**: 4/5 plans executed
+**Plans**: 5/5 plans executed
 
 Plans:
 **Wave 1**
@@ -130,7 +130,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 04-05-PLAN.md — Release: ressalva de paridade removida dos READMEs, seção de gates, `CHANGELOG.md` com a nota do default flip, e auditoria delta consolidada do rubric
+- [x] 04-05-PLAN.md — Release: ressalva de paridade removida dos READMEs, seção de gates, `CHANGELOG.md` com a nota do default flip, e auditoria delta consolidada do rubric
 
 ## Progress
 
@@ -142,4 +142,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Contrato & Golden Fixtures | 3/3 | Complete    | 2026-09-29 |
 | 2. Catálogo de Labels & Cadeia MkDocs/index | 2/2 | Complete    | 2026-09-29 |
 | 3. pt-br nas 5 Superfícies | 3/3 | In Progress|  |
-| 4. Gêmeos PowerShell, Prosa & Release | 4/5 | In Progress|  |
+| 4. Gêmeos PowerShell, Prosa & Release | 5/5 | In Progress|  |
