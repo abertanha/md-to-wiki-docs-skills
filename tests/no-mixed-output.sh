@@ -37,7 +37,11 @@ SKIP=0
 # identical to en (consecrated terms) — declared explicitly here, never a
 # silent default. Emptying this array is what tests/no-mixed-output.sh's own
 # negative control (allowlist_is_load_bearing) exercises.
-GLOSSARY_ALLOWLIST=(label_stack label_roadmap table_design cell_absent)
+# nav_issues (D-21): "Issues" is a consecrated technical term (GitHub's own
+# UI never translates it) — identical in both catalogs on purpose. Declared
+# explicitly now, even though no `.sh` surface consumes nav_issues yet,
+# so the gate never starts failing in silence the day one does.
+GLOSSARY_ALLOWLIST=(label_stack label_roadmap table_design cell_absent nav_issues)
 
 in_allowlist() { # <key> — true when key is a declared glossary exception
 	local key="$1" k
