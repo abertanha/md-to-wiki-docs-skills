@@ -2,18 +2,18 @@
 gsd_state_version: "1.0"
 current_phase: 04
 current_phase_name: Gêmeos PowerShell, Prosa & Release
-current_plan: 2
+current_plan: 3
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-09-30T16:38:44.927Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-09-30T17:33:47.225Z"
 last_activity: 2026-09-30
 last_activity_desc: Phase 04 execution started
-state_head: 064423bd7795a3797ad3025b70fe9942a5393a71
+state_head: 3f7300bde3bfd8602767507280fa31eb4e0aace8
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 13
-  completed_plans: 9
+  completed_plans: 10
   percent: 50
 ---
 
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-09-28)
 
 ## Current Position
 
-Current Plan: 2
+Current Plan: 3
 Total Plans in Phase: 5
 Phase: 04 (Gêmeos PowerShell, Prosa & Release) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-09-30 — Phase 04 execution started
 
@@ -67,6 +67,7 @@ Progress: [█████░░░░░] 50%
 | Phase 03 P02 | 45min | 3 tasks | 8 files |
 | Phase 03 P03 | 25min | 3 tasks | 6 files |
 | Phase 04 P01 | 126min | 3 tasks | 6 files |
+| Phase 04 P02 | 51min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,8 @@ Recent decisions affecting current work:
 - [Phase 03]: 03-03: tests/no-mixed-output.sh como harness dedicado (não extensão de fail-closed.sh) — contrato de saída e escopo distintos justificam arquivo próprio (D-14)
 - [Phase 04]: 04-01: banned_cmdlets e demais gates de tests/ps1-contract.sh iteram sobre scripts/lib + a lista TWINS (só generate-index.ps1 neste plano), nunca um glob cego scripts/*.ps1 — os outros três gêmeos ficam congelados até 04-03 (D-19/D-25)
 - [Phase 04]: 04-01: no_hardcoded_chrome precisou stripar tokens $variavel antes de comparar needle — nomes de variável PowerShell em camelCase derivados da chave carregam o próprio fragmento de palavra e geravam falso positivo
+- [Phase 04]: D-22/D-23/D-24: glossário anti-calque em CONTEXT.md com região de sentinela ignorada, denylist v1 restrita a formas ausentes do VOLP, regra de desempate via VOLP
+- [Phase 04]: tests/wiki-links.sh extrai as expressões sed DO arquivo do agent (não uma cópia) para nunca divergir silenciosamente do que é publicado
 
 ### Pending Todos
 
@@ -111,6 +114,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-30T16:38:44.890Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-09-30T17:33:47.180Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None

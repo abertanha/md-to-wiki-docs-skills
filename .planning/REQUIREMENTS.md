@@ -23,7 +23,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 - [x] **QUAL-01**: Idioma alcança os consumers: `theme.language: pt-BR` no mkdocs.yml (en omite a chave), `-M lang=pt-BR -M toc-title=Sumário` no pandoc (só pt-br), `lang` no HTML do Swagger
 - [x] **QUAL-02**: Golden fixtures `en` congelados por geminho (.sh/.ps1) + harness de diff sem engines; `OUTPUT_LANG=en` reproduz a saída atual byte-idêntica (token de data mascarado e documentado)
-- [ ] **QUAL-03**: Glossário anti-calque no `CONTEXT.md` rege a prosa dos agents; denylist de calques verificável por grep como critério de completion
+- [x] **QUAL-03**: Glossário anti-calque no `CONTEXT.md` rege a prosa dos agents; denylist de calques verificável por grep como critério de completion
 
 ## v2 Requirements
 
@@ -74,7 +74,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CHROME-04 | Phase 2 | Complete |
 | QUAL-01 | Phase 3 | Complete |
 | QUAL-02 | Phase 1 | Complete |
-| QUAL-03 | Phase 4 | Pending |
+| QUAL-03 | Phase 4 | Complete |
 
 **Coverage:**
 

@@ -112,7 +112,7 @@ Plans:
   4. Denylist de calques verificável por grep roda como critério de completion — zero ocorrência de calques ("deployar", "printar", "commitar", …) na prosa dos agents e na saída pt-br
   5. Release: `tests/regress.sh` wired no fluxo, README/README.pt-BR e rubric delta atualizados, nota de release documentando o default flip e que `OUTPUT_LANG=en` preserva o comportamento anterior; execução pt-br end-to-end num host com engines
 
-**Plans**: 1/5 plans executed
+**Plans**: 2/5 plans executed
 
 Plans:
 **Wave 1**
@@ -121,7 +121,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 04-02-PLAN.md — Glossário anti-calque no `CONTEXT.md` inline nos agents de prosa autoral, `tests/no-calques.sh`, e CR-01 + descarte de texto de link + laço frágil com `tests/wiki-links.sh`
+- [x] 04-02-PLAN.md — Glossário anti-calque no `CONTEXT.md` inline nos agents de prosa autoral, `tests/no-calques.sh`, e CR-01 + descarte de texto de link + laço frágil com `tests/wiki-links.sh`
 - [ ] 04-03-PLAN.md — `generate-mkdocs.ps1`, `to-pdf.ps1` e `to-dokuwiki.ps1` catalog-driven (theme.language e flags de pandoc aditivas) + `ps1-contract.sh` nos quatro gêmeos
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -142,4 +142,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Contrato & Golden Fixtures | 3/3 | Complete    | 2026-09-29 |
 | 2. Catálogo de Labels & Cadeia MkDocs/index | 2/2 | Complete    | 2026-09-29 |
 | 3. pt-br nas 5 Superfícies | 3/3 | In Progress|  |
-| 4. Gêmeos PowerShell, Prosa & Release | 1/5 | In Progress|  |
+| 4. Gêmeos PowerShell, Prosa & Release | 2/5 | In Progress|  |
