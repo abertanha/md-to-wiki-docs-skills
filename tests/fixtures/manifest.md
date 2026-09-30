@@ -20,8 +20,7 @@ regressão silenciosamente e é proibido.
   PDF (nem `weasyprint` nem `wkhtmltopdf`): a superfície PDF foi capturada
   sob a exceção D-10 (ver abaixo), como o lado `.sh` já era.
 - Commit SHA da captura `.ps1` (golden-ps1/ adicionado, Tarefa 3 do plano
-  `04-04`): `(registrado no commit seguinte desta mesma tarefa — o hash
-  deste commit só existe depois de criado)`
+  `04-04`): `7a82332`
 - Commit SHA da captura (golden-sh/dokuwiki adicionado): `3c81fe2`
 - Commit SHA da captura inicial (goldens engine-less .sh): `f2faeb9`
 
