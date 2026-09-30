@@ -64,10 +64,29 @@ If `node` is unavailable, at minimum confirm the YAML parses and `paths` is non-
 
 ### 4. Generate the Swagger UI page
 
-From the template at `$SKILL_DIR/templates/swagger-ui.html`, write `swagger-ui/index.html`:
+From the template at `$SKILL_DIR/templates/swagger-ui.html`, write `swagger-ui/index.html` via a
+deterministic four-step procedure, in order:
 
-- Replace `{{PROJECT_NAME}}` with `$PROJECT_NAME`
-- Replace `{{OPENAPI_YML}}` with `openapi.yml` (same directory)
+1. Load the catalog for the active language: `set -a; . "$SKILL_DIR/templates/lang/$OUTPUT_LANG.lang"; set +a`.
+2. Derive the `lang` attribute by `case "$OUTPUT_LANG"`: `en` produces an empty string, `pt-br`
+   produces ` lang="pt-BR"` (with the leading space — the value carries the whole attribute, not
+   just the locale token). This is the only locale projection in the Swagger flow; `pt-BR` is the
+   BCP 47 form for this HTML consumer.
+3. Run a single `sed` over `$SKILL_DIR/templates/swagger-ui.html`, substituting all four
+   placeholders in the same pass, writing to `swagger-ui/index.html`:
+   - `{{PROJECT_NAME}}` → `$PROJECT_NAME`
+   - `{{OPENAPI_YML}}` → `openapi.yml` (same directory)
+   - `{{TITLE_SUFFIX}}` → the catalog's `swagger_title_suffix` value
+   - `{{LANG_ATTR}}` → the attribute derived in step 2
+4. Verify no `{{` sequence remains in the generated file.
+
+`OUTPUT_LANG` comes from the dispatch prompt, never from the environment — same mechanism as the
+other format agents. An unknown or missing value stops the flow with the list of supported
+languages (`en`, `pt-br`); there is no silent fallback.
+
+**Upstream limit (D-11):** the Swagger UI bundle's own chrome (the "Authorize" and "Try it out"
+buttons) stays in English — the upstream project has no official i18n support. Localization here
+covers only `<title>` and the document's `lang` attribute.
 
 Done when `swagger-ui/` contains both `index.html` and `openapi.yml`.
 

@@ -10,6 +10,10 @@ git --version && gh --version
 
 If any variable from CONTEXT.md is unset, ask the orchestrator before running.
 
+`OUTPUT_LANG` comes from the dispatch prompt, never from the environment — same mechanism as the
+other format agents. An unknown or missing value stops the flow with the list of supported
+languages (`en`, `pt-br`); there is no silent fallback.
+
 ## Steps
 
 ### 1. Discover sources
@@ -54,6 +58,17 @@ wiki/
 ```
 
 Write `Home.md` and `_Sidebar.md` yourself — overview text is judgment work; link the sections with `[[Page]]` links. Done when every discovered file from step 1 has a page in the tree.
+
+The authorial chrome of `Home.md` and `_Sidebar.md` — headings and section labels — is written in
+the language of `$OUTPUT_LANG`. The canonical section nouns come from the catalog at
+`$SKILL_DIR/templates/lang/$OUTPUT_LANG.lang`; use these keys: `label_project_overview`,
+`label_architecture`, `section_features`, `section_overview`, `section_getting_started`, and
+`label_contributing`.
+
+Page names (`Home.md`, `_Sidebar.md`, `_Footer.md`), directory names (`Project/`,
+`Architecture/`, `Features/`, `Quick-Tasks/`), and `[[Page]]` link targets are PATHS and are NEVER
+translated, in any language (CHROME-04) — translating them would break the link resolution in
+step 5.
 
 ### 4. Convert links
 
