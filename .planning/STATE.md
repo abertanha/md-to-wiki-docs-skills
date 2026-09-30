@@ -2,18 +2,18 @@
 gsd_state_version: "1.0"
 current_phase: 04
 current_phase_name: Gêmeos PowerShell, Prosa & Release
-current_plan: 4
+current_plan: 5
 status: executing
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-09-30T17:54:54.900Z"
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-09-30T18:50:19.772Z"
 last_activity: 2026-09-30
 last_activity_desc: Phase 04 execution started
-state_head: 9a213e5a84b884f718f216d459f18301e8843491
+state_head: 32f92fdd2c3a7f617a83b1b70e02737b11ee4630
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 12
   percent: 50
 ---
 
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-09-28)
 
 ## Current Position
 
-Current Plan: 4
+Current Plan: 5
 Total Plans in Phase: 5
 Phase: 04 (Gêmeos PowerShell, Prosa & Release) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-09-30 — Phase 04 execution started
 
@@ -69,6 +69,7 @@ Progress: [█████░░░░░] 50%
 | Phase 04 P01 | 126min | 3 tasks | 6 files |
 | Phase 04 P02 | 51min | 3 tasks | 5 files |
 | Phase 04 P03 | 20min | 3 tasks | 5 files |
+| Phase 04 P04 | 45min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,8 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-03: no_hardcoded_chrome strip também ${var} (forma com chaves), não só $var — generate-mkdocs.ps1 introduziu a forma com chaves
 - [Phase 04]: 04-03: declared_keys_complete generalizado para unir todo array @(...) do arquivo — to-pdf.ps1 declara pdf_toc_title condicionalmente, só no ramo pt-br
 - [Phase 04]: 04-03: pwsh_accented_dir_survives adaptada por gêmeo — to-dokuwiki.ps1 prova por existência de arquivo, to-pdf.ps1 por conteúdo, generate-mkdocs.ps1 por exit-code (nav sem -Recurse, defeito pré-existente fora de escopo)
+- [Phase 04]: Três bugs pré-existentes nos gêmeos .ps1 (to-pdf.ps1 argumentos posicionais, to-dokuwiki.ps1 Split-Path com ':', generate-mkdocs.ps1 caminho absoluto vazando) corrigidos in-line ao serem expostos pela primeira execução real da perna .ps1 (04-04)
+- [Phase 04]: tests/ps1-contract.sh corrigido: set -e abortava a suíte na primeira falha comportamental, e três pernas não toleravam a exceção D-10 (to-pdf.ps1 sem engine de PDF) — helper pdf_status_tolerated compartilhado (04-04)
 
 ### Pending Todos
 
@@ -118,6 +121,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-30T17:54:54.865Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-09-30T18:50:19.740Z
+Stopped at: Completed 04-04-PLAN.md
 Resume file: None
