@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Contrato & Golden Fixtures** - `OUTPUT_LANG` no contrato, normalização de locale e golden fixtures `en` congelados por geminho antes de qualquer refactor (completed 2026-09-29)
 - [x] **Phase 2: Catálogo de Labels & Cadeia MkDocs/index** - Extração mecânica das strings `en`, consumo por chave nas superfícies de maior risco e o checkpoint duro de regressão `en` (completed 2026-09-29)
-- [ ] **Phase 3: pt-br nas 5 Superfícies** - Catálogo `pt-br` completo, chrome 100% PT-BR nas cinco superfícies e locale projetado em cada consumer
+- [x] **Phase 3: pt-br nas 5 Superfícies** - Catálogo `pt-br` completo, chrome 100% PT-BR nas cinco superfícies e locale projetado em cada consumer (completed 2026-09-30)
 - [ ] **Phase 4: Gêmeos PowerShell, Prosa & Release** - Catálogo na segunda shell com encoding disciplinado, prosa regida pelo glossário anti-calque e fechamento do milestone
 
 ## Phase Details
