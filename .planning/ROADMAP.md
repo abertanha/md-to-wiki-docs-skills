@@ -112,7 +112,25 @@ Plans:
   4. Denylist de calques verificável por grep roda como critério de completion — zero ocorrência de calques ("deployar", "printar", "commitar", …) na prosa dos agents e na saída pt-br
   5. Release: `tests/regress.sh` wired no fluxo, README/README.pt-BR e rubric delta atualizados, nota de release documentando o default flip e que `OUTPUT_LANG=en` preserva o comportamento anterior; execução pt-br end-to-end num host com engines
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 04-01-PLAN.md — Tracer: `scripts/lib/catalog.ps1` (parser quote-aware) + `generate-index.ps1` catalog-driven com os bugs do D-16 corrigidos + 4 chaves novas + `tests/ps1-contract.sh`
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 04-02-PLAN.md — Glossário anti-calque no `CONTEXT.md` inline nos agents de prosa autoral, `tests/no-calques.sh`, e CR-01 + descarte de texto de link + laço frágil com `tests/wiki-links.sh`
+- [ ] 04-03-PLAN.md — `generate-mkdocs.ps1`, `to-pdf.ps1` e `to-dokuwiki.ps1` catalog-driven (theme.language e flags de pandoc aditivas) + `ps1-contract.sh` nos quatro gêmeos
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 04-04-PLAN.md — Perna `.ps1` real de `tests/regress.sh`, checkpoint de instalação do `pwsh` e captura de `tests/fixtures/golden-ps1/`
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 04-05-PLAN.md — Release: ressalva de paridade removida dos READMEs, seção de gates, `CHANGELOG.md` com a nota do default flip, e auditoria delta consolidada do rubric
 
 ## Progress
 
@@ -124,4 +142,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Contrato & Golden Fixtures | 3/3 | Complete    | 2026-09-29 |
 | 2. Catálogo de Labels & Cadeia MkDocs/index | 2/2 | Complete    | 2026-09-29 |
 | 3. pt-br nas 5 Superfícies | 3/3 | In Progress|  |
-| 4. Gêmeos PowerShell, Prosa & Release | 0/? | Not started | - |
+| 4. Gêmeos PowerShell, Prosa & Release | 0/5 | Planned      | - |
