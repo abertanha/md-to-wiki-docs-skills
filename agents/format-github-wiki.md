@@ -92,13 +92,13 @@ step 5.
 
 ### 4. Convert links
 
-Convert relative markdown links to MediaWiki `[[Page|text]]` links — external URLs stay untouched (the patterns require a colon-free relative target, so `http(s)://` never matches):
+Convert relative markdown links to MediaWiki `[[Page|text]]` links — external URLs stay untouched (the patterns require a colon-free relative target, so `http(s)://` never matches). The visible link text the spec author wrote is preserved by both expressions:
 
 ```bash
-for f in $(find wiki -name '*.md'); do
+find wiki -name '*.md' -print0 | while IFS= read -r -d '' f; do
   sed -i -E \
-    -e 's@\[\([^]]*\)\]\(([^):]+)\.md\)@[[\1|\2]]@g' \
-    -e 's@\[\([^]]*\)\]\(([^):]+)/([^)/:]+)\)@[[\3|\2]]@g' \
+    -e 's@\[([^]]*)\]\(([^):]+)\.md\)@[[\1|\2]]@g' \
+    -e 's@\[([^]]*)\]\(([^):]+/[^)/:]+)\)@[[\1|\2]]@g' \
     "$f"
 done
 ```
