@@ -50,6 +50,7 @@ desc_roadmap='Funcionalidades e marcos'
 desc_architecture='Arquitetura do sistema'
 index_architecture_body='Consulte o documento [Arquitetura](specs/codebase/ARCHITECTURE.md) para o design do sistema e as relações entre componentes.'
 index_getting_started_body='Para instruções de instalação, veja a [Visão Geral do Projeto](specs/project/PROJECT.md).'
+index_development_body='Veja o [Guia de Configuração](specs/project/SETUP.md) e a [Contribuição](specs/project/CONTRIBUTING.md) para onboarding de desenvolvedor.'
 cell_absent='—'
 generated_by='Gerado por [md-to-wiki](https://github.com/abertanha/md-to-wiki-docs-skills) — %s'
 
