@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 current_phase: 03
 current_phase_name: pt-br-nas-5-superf-cies
 current_plan: 3
-status: executing
-stopped_at: Wave 2 complete — 03-02 done
-last_updated: "2026-09-29T20:18:02.131Z"
-last_activity: 2026-09-29
-last_activity_desc: Plan 03-01 executed — catálogo pt-br.lang, theme.language condicional, gate catalog_parity
-state_head: 442d055d7237dd0f05078bd494646eea85af6c57
+status: verifying
+stopped_at: Plano 03-03 executado — Phase 03 completa (3/3 plans), pronta para verificação
+last_updated: "2026-09-30T11:30:10.554Z"
+last_activity: 2026-09-30
+last_activity_desc: Plan 03-03 executed — swagger-ui.html parametrizado, agents sob contrato OUTPUT_LANG, gate no-mixed-output.sh
+state_head: 0db75bc5df8173df6d7545a6b9270797e3fabfd4
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
   percent: 50
 ---
 
@@ -30,10 +30,10 @@ See: .planning/PROJECT.md (updated 2026-09-28)
 
 Current Plan: 3
 Total Plans in Phase: 3
-Phase: 03 (pt-br-nas-5-superf-cies) — Wave 2 complete
-Plan: 03-02 done — 03-03 next
-Status: Ready to execute
-Last activity: 2026-09-29 — Plano 03-01 executado (catálogo pt-br.lang, theme.language condicional, gate catalog_parity)
+Phase: 03 (pt-br-nas-5-superf-cies) — Wave 3 complete
+Plan: 03-03 done — Phase 03 complete (3/3 plans)
+Status: Phase complete — ready for verification
+Last activity: 2026-09-30 — Plano 03-03 executado (swagger-ui.html parametrizado, agents sob contrato OUTPUT_LANG, gate no-mixed-output.sh)
 
 Progress: [█████░░░░░] 50%
 
@@ -65,6 +65,7 @@ Progress: [█████░░░░░] 50%
 | Phase 01 P01 | 14min | 2 tasks | 20 files |
 | Phase 03 P01 | 57min | 3 tasks | 4 files |
 | Phase 03 P02 | 45min | 3 tasks | 8 files |
+| Phase 03 P03 | 25min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,8 @@ Recent decisions affecting current work:
 - [Phase 03]: 03-02: PANDOC_LANG_OPTS inserido em todas as 5 invocações de pandoc de to-pdf.sh, não só na primeira — a cascata de fallback de engines precisa preservar a locale em qualquer engine que rode
 - [Phase 03]: 03-02: gate pandoc_lang_flags prova -M lang/-M toc-title com stub executável de pandoc (sem engine real), cobrindo a linha de comando efetiva montada pelo script
 - [Phase 03]: 03-02: bootstrap do catálogo em to-dokuwiki.sh roda ANTES da guarda de pandoc, para que CHROME-03 halte nomeando a chave ausente mesmo num host sem pandoc
+- [Phase 03]: 03-03: {{LANG_ATTR}} carrega o atributo inteiro (com espaço à esquerda) para resolver o conflito D-09/D-10 vs. byte-identidade do golden en
+- [Phase 03]: 03-03: tests/no-mixed-output.sh como harness dedicado (não extensão de fail-closed.sh) — contrato de saída e escopo distintos justificam arquivo próprio (D-14)
 
 ### Pending Todos
 
@@ -105,6 +108,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-29T20:18:02.092Z
-Stopped at: Wave 2 complete — 03-02 done
+Last session: 2026-09-30T11:30:10.523Z
+Stopped at: Plano 03-03 executado — Phase 03 completa (3/3 plans), pronta para verificação
 Resume file: None

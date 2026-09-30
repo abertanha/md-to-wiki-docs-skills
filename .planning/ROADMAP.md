@@ -83,7 +83,7 @@ Plans:
   3. `theme.language: pt-BR` aparece no mkdocs.yml somente com pt-br (com `en` a chave é omitida — saída en inalterada); o comando pandoc do PDF carrega `-M lang=pt-BR -M toc-title=Sumário` somente no branch pt-br, verificado por assert estrutural sem engines; o HTML do Swagger ganha `lang`
   4. A tree de teste com diretório acentuado (`features/autenticação/`) atravessa a cadeia pt-br sem corrupção de bytes — labels derivados preservados, filenames e anchors intactos
 
-**Plans**: 2/3 plans executed
+**Plans**: 3/3 plans executed
 
 Plans:
 **Wave 1**
@@ -96,7 +96,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 03-03-PLAN.md — `swagger-ui.html` com `{{LANG_ATTR}}`/`{{TITLE_SUFFIX}}`, agents Swagger e GitHub Wiki sob o contrato de `OUTPUT_LANG`, e `tests/no-mixed-output.sh` como gate de zero saída mista
+- [x] 03-03-PLAN.md — `swagger-ui.html` com `{{LANG_ATTR}}`/`{{TITLE_SUFFIX}}`, agents Swagger e GitHub Wiki sob o contrato de `OUTPUT_LANG`, e `tests/no-mixed-output.sh` como gate de zero saída mista
 
 ### Phase 4: Gêmeos PowerShell, Prosa & Release
 
@@ -123,5 +123,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Contrato & Golden Fixtures | 3/3 | Complete    | 2026-09-29 |
 | 2. Catálogo de Labels & Cadeia MkDocs/index | 2/2 | Complete    | 2026-09-29 |
-| 3. pt-br nas 5 Superfícies | 2/3 | In Progress|  |
+| 3. pt-br nas 5 Superfícies | 3/3 | In Progress|  |
 | 4. Gêmeos PowerShell, Prosa & Release | 0/? | Not started | - |
