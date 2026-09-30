@@ -45,7 +45,11 @@ Script calls use the pattern:
 $SCRIPT_RUNNER "$SKILL_DIR/scripts/<name>$SCRIPT_EXT" <positional_args>
 ```
 
-Scripts accept the same positional arguments across `.sh` and `.ps1`, with one exception in flight: `generate-index` and `generate-mkdocs` on `.sh` take a required `output_lang` positional (`en`, `pt-br`) that the `.ps1` twins do not yet accept — landing in a later phase. No flags needed, no OS-specific syntax otherwise.
+Scripts accept the same positional arguments across `.sh` and `.ps1`, no exceptions: four of them (`generate-index`, `generate-mkdocs`, `to-pdf`, `to-dokuwiki`) take a required `output_lang` positional (`en`, `pt-br`) in the same slot on both hosts. No flags needed, no OS-specific syntax otherwise.
+
+### Output Language
+
+`output_lang` accepts `en` or `pt-br`. The **default is `pt-br`**; the value is normalized case-insensitively on input (`pt-BR` ≡ `pt-br`). It is assigned during onboarding and passed through the dispatch prompt — never read from an environment variable, the same mechanism as `AUDIENCE`. An unknown value halts generation and lists the supported values; there is no silent fallback. `en` preserves the previous behavior byte-for-byte. See [CONTEXT.md](./CONTEXT.md) for the full language policy (per-consumer projection, catalog format, fail-closed rules).
 
 ## Audience Values
 
@@ -64,6 +68,7 @@ md-to-wiki/
 ├── SKILL.md                  # Thin router (~80 lines, ~600 tokens)
 ├── README.md                 # This file (English)
 ├── README.pt-BR.md           # Portuguese documentation
+├── CHANGELOG.md              # Release notes, most recent milestone first
 ├── LICENSE                   # MIT
 ├── scripts/                  # Companion scripts (.sh + .ps1 pairs)
 │   ├── discover-sources.sh   # Scan .specs/ directory
@@ -78,11 +83,21 @@ md-to-wiki/
 │   ├── to-pdf.ps1            # (PowerShell)
 │   ├── to-dokuwiki.sh        # Convert to DokuWiki syntax
 │   ├── to-dokuwiki.ps1       # (PowerShell)
-│   └── prompt-tests.sh       # Routing + execution tests (gitignored)
+│   └── lib/
+│       └── catalog.ps1       # scripts/lib/catalog.ps1 — shared .ps1 loader (parser, allowlist gate, BOM-less writer)
 ├── templates/                # Reusable templates
 │   ├── lang/
-│   │   └── en.lang           # EN chrome label catalog (pt-br.lang lands in Phase 3)
+│   │   ├── en.lang           # EN chrome label catalog
+│   │   └── pt-br.lang        # PT-BR chrome label catalog (default)
 │   └── swagger-ui.html       # Swagger UI wrapper
+├── tests/                    # Test harnesses — the gate a contributor runs (see ## Tests)
+│   ├── regress.sh            # en/.sh/.ps1 output reproduces golden fixtures byte-for-byte
+│   ├── fail-closed.sh        # fail-closed on missing key, keyset parity, language allowlist
+│   ├── no-mixed-output.sh    # zero mixed-language output across the 5 pt-br surfaces
+│   ├── ps1-contract.sh       # the .ps1 twins' contract; structural gates run without PowerShell
+│   ├── no-calques.sh         # anti-calque denylist on prose and pt-br output
+│   ├── wiki-links.sh         # GitHub Wiki link conversion
+│   └── fixtures/             # golden-sh/, golden-ps1/, tree/, manifest.md
 └── agents/                   # On-demand subagents
     ├── onboarding.md         # Discovery interview + OS detection
     ├── format-mkdocs.md      # MkDocs Material site generation
@@ -146,6 +161,24 @@ All scripts ship with both `.sh` (Linux/macOS) and `.ps1` (Windows PowerShell) v
 - The `gh` CLI works on Windows too (install via `winget install GitHub.cli`)
 - Pandoc on Windows: `winget install pandoc`
 - mkdocs works via `pip install mkdocs mkdocs-material` on Windows same as Linux
+- The `.ps1` twins read the same label catalog as the `.sh` scripts (`templates/lang/*.lang`), through the shared loader `scripts/lib/catalog.ps1`
+- All output written by the `.ps1` twins is UTF-8 without BOM
+- **Known limitation:** Windows PowerShell 5.1 has not been verified on a real host — only PowerShell 7 (`pwsh`) on Linux/WSL. See [CHANGELOG.md](./CHANGELOG.md) for the full list of known limitations.
+
+## Tests
+
+This repository has no CI — the harnesses below are the gate a contributor runs before opening a PR. Each prints one `OK:`/`FAIL:`/`SKIPPED:` line per assertion and never passes silently: a harness that cannot run prints `SKIPPED:` with the reason and exits with status 3. **Golden fixtures under `tests/fixtures/golden-sh/` and `tests/fixtures/golden-ps1/` are never edited by hand — `tests/regress.sh capture` is the only writer.**
+
+| Command | What it proves |
+|---------|-----------------|
+| `bash tests/regress.sh` | `en` output (`.sh` and `.ps1`) reproduces the golden fixtures byte-for-byte, with symmetric date masking |
+| `bash tests/fail-closed.sh` | Fail-closed on a missing catalog key, keyset parity between `en`/`pt-br` catalogs, the language allowlist gate, and derived-label passthrough |
+| `bash tests/no-mixed-output.sh` | Zero mixed-language output across the five pt-br surfaces |
+| `bash tests/ps1-contract.sh` | The four catalog-driven `.ps1` twins' contract — structural gates run even without PowerShell installed |
+| `bash tests/no-calques.sh` | The anti-calque denylist on prose and pt-br output |
+| `bash tests/wiki-links.sh` | GitHub Wiki link conversion |
+
+Exit codes: `0` everything green, `1` a divergence or a gate failed, exit 3 when one or more legs are `SKIPPED` for a missing dev-only dependency (`pwsh` or `pandoc`).
 
 ## Usage Examples
 

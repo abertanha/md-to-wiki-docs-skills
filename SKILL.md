@@ -52,11 +52,11 @@ Arm order matters: the specific wiki formats (`github-wiki`, `dokuwiki`) precede
 
 All are called positionally, identically in `.sh` and `.ps1` (see [CONTEXT.md](./CONTEXT.md) for the call convention):
 
-| Script | Purpose |
-|--------|---------|
-| `discover-sources` | Scan the specs tree; `summary` (default), `files`, or `json` output |
-| `generate-mkdocs` | Build the MkDocs site skeleton (copies specs in, writes `mkdocs.yml` + nav) |
-| `generate-index` | Build the audience-appropriate landing page |
-| `to-dokuwiki` | Convert markdown → DokuWiki syntax, mirroring the input tree |
-| `to-pdf` | Concatenate + convert to PDF via pandoc |
-| `fetch-issues` | Cache GitHub issue/PR metadata via `gh` (fallback `curl`) |
+| Script | Purpose | Positional signature (identical `.sh`/`.ps1`) |
+|--------|---------|------------------------------------------------|
+| `discover-sources` | Scan the specs tree; `summary` (default), `files`, or `json` output | `[dir] [summary\|files\|json]` |
+| `generate-mkdocs` | Build the MkDocs site skeleton (copies specs in, writes `mkdocs.yml` + nav) | `[project_name] [specs_dir] <output_lang>` |
+| `generate-index` | Build the audience-appropriate landing page | `<project_name> <audience> <output_lang> [feature_base_dirs...]` |
+| `to-dokuwiki` | Convert markdown → DokuWiki syntax, mirroring the input tree | `<output_dir> <output_lang> <file1.md> [file2.md ...]` |
+| `to-pdf` | Concatenate + convert to PDF via pandoc | `<output.pdf> <output_lang> <file1.md> [file2.md ...]` |
+| `fetch-issues` | Cache GitHub issue/PR metadata via `gh` (fallback `curl`) | `<owner/repo> <number> [number...]` |
