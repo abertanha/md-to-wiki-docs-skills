@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 03
-current_phase_name: pt-br-nas-5-superf-cies
-current_plan: 3
-status: verifying
-stopped_at: Plano 03-03 executado — Phase 03 completa (3/3 plans), pronta para verificação
-last_updated: "2026-09-30T11:30:10.554Z"
+current_phase: 04
+current_phase_name: Gêmeos PowerShell, Prosa & Release
+current_plan: 2
+status: executing
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-09-30T16:38:44.927Z"
 last_activity: 2026-09-30
-last_activity_desc: Plan 03-03 executed — swagger-ui.html parametrizado, agents sob contrato OUTPUT_LANG, gate no-mixed-output.sh
-state_head: 0db75bc5df8173df6d7545a6b9270797e3fabfd4
+last_activity_desc: Phase 04 execution started
+state_head: 064423bd7795a3797ad3025b70fe9942a5393a71
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 13
+  completed_plans: 9
   percent: 50
 ---
 
@@ -24,16 +24,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-28)
 
 **Core value:** Qualquer árvore de specs vira documentação publicável com um comando — de forma previsível.
-**Current focus:** Phase 03 — pt-br nas 5 Superfícies
+**Current focus:** Phase 04 — Gêmeos PowerShell, Prosa & Release
 
 ## Current Position
 
-Current Plan: 3
-Total Plans in Phase: 3
-Phase: 03 (pt-br-nas-5-superf-cies) — Wave 3 complete
-Plan: 03-03 done — Phase 03 complete (3/3 plans)
-Status: Phase complete — ready for verification
-Last activity: 2026-09-30 — Plano 03-03 executado (swagger-ui.html parametrizado, agents sob contrato OUTPUT_LANG, gate no-mixed-output.sh)
+Current Plan: 2
+Total Plans in Phase: 5
+Phase: 04 (Gêmeos PowerShell, Prosa & Release) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-09-30 — Phase 04 execution started
 
 Progress: [█████░░░░░] 50%
 
@@ -66,6 +66,7 @@ Progress: [█████░░░░░] 50%
 | Phase 03 P01 | 57min | 3 tasks | 4 files |
 | Phase 03 P02 | 45min | 3 tasks | 8 files |
 | Phase 03 P03 | 25min | 3 tasks | 6 files |
+| Phase 04 P01 | 126min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,8 @@ Recent decisions affecting current work:
 - [Phase 03]: 03-02: bootstrap do catálogo em to-dokuwiki.sh roda ANTES da guarda de pandoc, para que CHROME-03 halte nomeando a chave ausente mesmo num host sem pandoc
 - [Phase 03]: 03-03: {{LANG_ATTR}} carrega o atributo inteiro (com espaço à esquerda) para resolver o conflito D-09/D-10 vs. byte-identidade do golden en
 - [Phase 03]: 03-03: tests/no-mixed-output.sh como harness dedicado (não extensão de fail-closed.sh) — contrato de saída e escopo distintos justificam arquivo próprio (D-14)
+- [Phase 04]: 04-01: banned_cmdlets e demais gates de tests/ps1-contract.sh iteram sobre scripts/lib + a lista TWINS (só generate-index.ps1 neste plano), nunca um glob cego scripts/*.ps1 — os outros três gêmeos ficam congelados até 04-03 (D-19/D-25)
+- [Phase 04]: 04-01: no_hardcoded_chrome precisou stripar tokens $variavel antes de comparar needle — nomes de variável PowerShell em camelCase derivados da chave carregam o próprio fragmento de palavra e geravam falso positivo
 
 ### Pending Todos
 
@@ -108,6 +111,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-30T11:30:10.523Z
-Stopped at: Plano 03-03 executado — Phase 03 completa (3/3 plans), pronta para verificação
+Last session: 2026-09-30T16:38:44.890Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None

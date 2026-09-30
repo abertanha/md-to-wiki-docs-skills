@@ -112,12 +112,12 @@ Plans:
   4. Denylist de calques verificável por grep roda como critério de completion — zero ocorrência de calques ("deployar", "printar", "commitar", …) na prosa dos agents e na saída pt-br
   5. Release: `tests/regress.sh` wired no fluxo, README/README.pt-BR e rubric delta atualizados, nota de release documentando o default flip e que `OUTPUT_LANG=en` preserva o comportamento anterior; execução pt-br end-to-end num host com engines
 
-**Plans**: 5 plans
+**Plans**: 1/5 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 04-01-PLAN.md — Tracer: `scripts/lib/catalog.ps1` (parser quote-aware) + `generate-index.ps1` catalog-driven com os bugs do D-16 corrigidos + 4 chaves novas + `tests/ps1-contract.sh`
+- [x] 04-01-PLAN.md — Tracer: `scripts/lib/catalog.ps1` (parser quote-aware) + `generate-index.ps1` catalog-driven com os bugs do D-16 corrigidos + 4 chaves novas + `tests/ps1-contract.sh`
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -142,4 +142,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Contrato & Golden Fixtures | 3/3 | Complete    | 2026-09-29 |
 | 2. Catálogo de Labels & Cadeia MkDocs/index | 2/2 | Complete    | 2026-09-29 |
 | 3. pt-br nas 5 Superfícies | 3/3 | In Progress|  |
-| 4. Gêmeos PowerShell, Prosa & Release | 0/5 | Planned      | - |
+| 4. Gêmeos PowerShell, Prosa & Release | 1/5 | In Progress|  |
