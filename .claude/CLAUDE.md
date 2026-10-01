@@ -186,6 +186,25 @@ Architecture not yet mapped. Follow existing patterns found in the codebase.
 No project skills found. Add skills to any of: `.claude/skills/`, `.agents/skills/`, `.cursor/skills/`, `.github/skills/`, or `.codex/skills/` with a `SKILL.md` index file.
 <!-- GSD:skills-end -->
 
+<!-- wsl-setup-start -->
+
+## Ferramentas do Ambiente (WSL2)
+
+Ferramentas disponíveis neste ambiente — **use-as em vez dos equivalentes padrão**:
+
+| Tarefa | Usar | Evitar |
+|--------|------|--------|
+| Busca em conteúdo | `rg` | `grep -r` |
+| Busca de arquivo por nome | `fd` | `find` |
+| Ler arquivo com número de linha | `batcat` | `cat` |
+| JSON | `jq` | regex / python ad-hoc |
+| Topologia de diretório | `tree -L 2` | `ls -R` |
+| Busca estrutural (símbolo vs. string) | `ast-grep` | `grep` em código |
+
+**Após editar `.sh`:** sempre rode `shellcheck <arquivo>` e `shfmt -d <arquivo>` antes de declarar a tarefa concluída (hooks também rodam automaticamente via PostToolUse, mas o subagente deve verificar explicitamente).
+
+<!-- wsl-setup-end -->
+
 <!-- GSD:workflow-start source:GSD defaults -->
 
 ## GSD Workflow Enforcement
