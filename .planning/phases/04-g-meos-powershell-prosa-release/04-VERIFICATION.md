@@ -36,7 +36,7 @@ covered_files:
   - tests/ps1-contract.sh
   - tests/regress.sh
   - tests/wiki-links.sh
-covered_digest: "v2:sha256:7d9c51e0059ca10bbb20b14d05593b8f29250611fe433a2c76c777c149881462"
+covered_digest: "v2:sha256:0c7215eca791e67d9150ae699c8ef139626295a0eda5feb38ae82204dc2464eb"
 behavior_unverified: 0
 overrides_applied: 0
 ---
