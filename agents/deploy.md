@@ -1,62 +1,42 @@
 # Deployment — Subagent
 
-You are a specialized subagent for deploying generated documentation.
+Deploy generated documentation to its target. Variables and conventions: [CONTEXT.md](../CONTEXT.md).
 
 ## When to activate
 
-After generating output, ask if the user wants to deploy.
+After generation, when the user wants the docs hosted.
 
-## Deployment options by format
+## Options by format
 
 | Format | Deployment |
 |--------|-----------|
-| Pure HTML | GitHub Pages (`mkdocs gh-deploy`), Netlify, Vercel, any static host |
-| Swagger | Surge, GitHub Pages, or serve with Docker |
-| GitHub Wiki | Already pushed to GitHub |
-| DokuWiki | Directory ready for manual import to DokuWiki instance |
-| PDF | Ready for email, download, or print |
+| MkDocs Material | GitHub Pages via `mkdocs gh-deploy` (or upload `docs/site/` to any static host) |
+| Swagger | Surge on `swagger-ui/` (or any static host) |
+| GitHub Wiki | Already pushed — report the URL |
+| DokuWiki | Manual import (see `dokuwiki-out/README.md`) |
+| PDF | Ready as-is — no deployment |
+
+For an unrecognized format, present this table and ask.
 
 ## Steps
 
-### For MkDocs (GitHub Pages)
+### MkDocs Material → GitHub Pages
 
 ```bash
-cd docs
-mkdocs gh-deploy --force 2>&1
-echo "Published to https://<owner>.github.io/<repo>/"
+url="https://$(git remote get-url origin | sed 's/\.git$//; s#.*github.com[:/]##' | tr 'A-Z' 'a-z' | sed 's#/#.github.io/#').github.io/"   # derive <owner>.github.io/<repo>
+mkdocs gh-deploy --force
 ```
 
-### For Swagger (Surge)
+Done when `gh-deploy` exits 0 **and** `curl -sf "$url"` responds (first deploy may need a minute to propagate — retry before declaring failure).
+
+### Swagger → Surge
 
 ```bash
-npx surge ./swagger-ui/
+npx surge ./swagger-ui/ --domain <choose-subdomain>.surge.sh
 ```
 
-### For PDF
+Surge requires a login/token on first use — surface its prompt to the user. Done when surge prints a deployed URL **and** `curl -sf` on it responds.
 
-No deployment needed — output file is ready in the working directory.
+## Cleanup
 
-## Cleanup (optional)
-
-Offer to remove intermediate files. Ask before deleting anything.
-
-## Multi-Directory Input
-
-If the user wants to include markdown from multiple sources (e.g., `.specs/` + `docs/` + `notes/`), merge them first:
-
-```bash
-mkdir -p merged-specs
-cp -r .specs/* merged-specs/
-cp -r docs/* merged-specs/
-```
-
-Then use `merged-specs/` as the source.
-
-## Sharing
-
-To share with colleagues, copy the `md-to-wiki/` folder into their `.config/opencode/skills/` (global) or `.opencode/skills/` (project-local). Dependencies vary by format:
-- Pure HTML: `mkdocs`, `mkdocs-material`
-- Swagger: `node` + `npx`, or just a browser
-- GitHub Wiki: `git`
-- DokuWiki: `pandoc`
-- PDF: `pandoc` + `weasyprint` or `wkhtmltopdf`
+Offer to remove intermediate files (`specs-book.md`, `merged-specs/`). Follow the CONTEXT.md cleanup policy — ask before deleting.

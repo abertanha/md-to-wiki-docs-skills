@@ -1,65 +1,64 @@
 # DokuWiki Builder — Subagent
 
-You are a specialized subagent for converting markdown spec files to DokuWiki format.
+Convert a markdown specs tree to DokuWiki format. Variables and conventions: [CONTEXT.md](../CONTEXT.md).
 
 ## Prerequisites
 
 ```bash
-pandoc --version
+pandoc --version 2>/dev/null || echo "pandoc missing — install per CONTEXT.md §Dependencies"
 ```
 
-Install if needed: `apt install pandoc` (Linux), `brew install pandoc` (macOS), or download from [pandoc.org](https://pandoc.org).
+(The companion script also guards this itself and exits with install instructions.)
+
+If any variable from CONTEXT.md is unset, ask the orchestrator before running.
 
 ## Steps
 
 ### 1. Discover sources
 
 ```bash
-$SCRIPT_RUNNER "$SKILL_DIR/scripts/discover-sources$SCRIPT_EXT" <SOURCES>
-$SCRIPT_RUNNER "$SKILL_DIR/scripts/discover-sources$SCRIPT_EXT" <SOURCES> json > sources.json
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/discover-sources$SCRIPT_EXT" "$SOURCES"
 ```
 
-### 2. Convert to DokuWiki
+Done when the summary accounts for every markdown file under `$SOURCES`.
 
-Use the companion script:
+### 2. Convert
 
 ```bash
-$SCRIPT_RUNNER "$SKILL_DIR/scripts/to-dokuwiki$SCRIPT_EXT" <OUTPUT_DIR> <MD_FILE1> [<MD_FILE2> ...]
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/to-dokuwiki$SCRIPT_EXT" dokuwiki-out "$OUTPUT_LANG" $(find "$SOURCES" -name '*.md' | sort)
 ```
 
-### 3. Files structure
+Done when the script exits 0 and reports one `Converted` line per input file.
 
-The script produces a directory ready for a DokuWiki `data/pages/` folder:
+`OUTPUT_LANG` comes from the dispatch prompt, never from the environment — same mechanism as `format-mkdocs.md`. An unknown or missing value stops the script with the list of supported languages (`en`, `pt-br`); there is no silent fallback.
+
+## What the script produces (reference)
+
+The output mirrors the input tree — each input path becomes a DokuWiki page whose page ID is the path with `/` replaced by `:`:
 
 ```
-<OUTPUT_DIR>/
-  data/
-    pages/
-      project/
-        overview.txt
-        roadmap.txt
-      architecture/
-        overview.txt
-      features/
-        <feature-name>.txt
-      quick-tasks/
-        <task-name>.txt
-      references.txt
-  README.md            ← instructions for manual import
+dokuwiki-out/
+  data/pages/<input:path:with:colons>.txt
+  README.md            ← import instructions
 ```
 
-### 4. Verify conversion
+For a tree laid out per CONTEXT.md §Source taxonomy, that yields `project:*`, `codebase:*`, `features:<name>:*`, and `quick:<name>:*` pages. Import = copy `data/pages/` into the DokuWiki instance.
+
+### 3. Verify
 
 ```bash
-# Check all files converted
-find <OUTPUT_DIR>/data/pages -name '*.txt' | head -5
-# Check no raw markdown remains
-! grep -rn '```' <OUTPUT_DIR>/data/pages/
+in=$(find "$SOURCES" -name '*.md' | wc -l)
+out=$(find dokuwiki-out/data/pages -name '*.txt' | wc -l)
+[ "$in" -eq "$out" ] && echo "OK: $out/$in converted"
+! grep -rn '```' dokuwiki-out/data/pages/    # no raw markdown fences remain
 ```
+
+Done when `in` equals `out` and the fence check passes (or every leftover is reported).
 
 ## Output
 
 Return to the orchestrator:
-- Path to `<OUTPUT_DIR>/` with DokuWiki pages
-- Path to `<OUTPUT_DIR>/README.md` with import instructions
+- Path to `dokuwiki-out/` with the pages
+- Path to `dokuwiki-out/README.md` with import instructions
+- Conversion count (`converted/total`)
 - Any warnings (conversion failures, missing files)

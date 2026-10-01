@@ -1,0 +1,70 @@
+# templates/lang/pt-br.lang — catálogo `pt-br`, UTF-8 sem BOM
+#
+# Fonte única dos rótulos de chrome em português brasileiro. Os valores
+# seguem o glossário de .claude/CLAUDE.md §"Seed do glossário"; onde a seed
+# diverge dos scripts em `en.lang`, os scripts vencem — regra que vale só
+# para o catálogo `en` (aqui a seed é o ponto de partida). Mantém a MESMA
+# ORDEM e os MESMOS agrupamentos por superfície de templates/lang/en.lang,
+# para que um diff lado a lado entre os dois catálogos seja legível.
+#
+# Formato: chave='valor', aspas simples sempre, sem espaços ao redor do
+# '='. Sem expansão de shell (aspas simples inibem) — nenhum valor pode
+# conter '$', crase ou '$('. Fronteira label/markup (decidida na Phase 2,
+# ver docs/chrome-inventory.md): o valor da chave carrega o TEXTO DO
+# RÓTULO; o prefixo '## ' de heading e os separadores e pipes de tabela
+# ficam no format string do gerador, nunca na chave. Exceção deliberada:
+# `index_architecture_body`, `index_getting_started_body` e `generated_by`
+# carregam a FRASE INTEIRA, link markdown e URL incluídos — frase inteira é
+# a unidade de tradução. Os paths dentro desses links são estrutura e
+# permanecem idênticos em qualquer idioma (CHROME-04).
+
+# superfície MkDocs (scripts/generate-mkdocs.sh — consumida no plano 02-02)
+site_name_suffix='— Especificações'
+site_description='Documentação gerada automaticamente a partir de desenvolvimento spec-driven'
+nav_home='Início'
+nav_issues='Issues'
+
+# superfície index (scripts/generate-index.sh — consumida neste plano)
+index_tagline='Documentação gerada automaticamente a partir de sessões de desenvolvimento spec-driven.'
+section_quick_start='Início Rápido'
+section_overview='Visão Geral'
+section_features='Funcionalidades'
+section_architecture='Arquitetura'
+section_getting_started='Primeiros Passos'
+section_development='Desenvolvimento'
+label_project_overview='Visão Geral do Projeto'
+label_architecture='Arquitetura'
+label_stack='Stack'
+label_conventions='Convenções'
+label_roadmap='Roadmap'
+label_state_decisions='Estado e Decisões'
+label_setup_guide='Guia de Configuração'
+label_contributing='Contribuição'
+label_references='Referências'
+table_section='Seção'
+table_description='Descrição'
+table_feature='Funcionalidade'
+table_spec='Especificação'
+table_design='Design'
+table_tasks='Tarefas'
+desc_project_overview='Visão, objetivos e escopo'
+desc_roadmap='Funcionalidades e marcos'
+desc_architecture='Arquitetura do sistema'
+index_architecture_body='Consulte o documento [Arquitetura](specs/codebase/ARCHITECTURE.md) para o design do sistema e as relações entre componentes.'
+index_getting_started_body='Para instruções de instalação, veja a [Visão Geral do Projeto](specs/project/PROJECT.md).'
+index_development_body='Veja o [Guia de Configuração](specs/project/SETUP.md) e a [Contribuição](specs/project/CONTRIBUTING.md) para onboarding de desenvolvedor.'
+cell_absent='—'
+generated_by='Gerado por [md-to-wiki](https://github.com/abertanha/md-to-wiki-docs-skills) — %s'
+
+# superfície PDF (scripts/to-pdf.sh — sem consumidor nesta fase; consumida na Phase 3)
+pdf_title='Especificações'
+pdf_generated_on='Gerado em %s'
+pdf_toc_title='Sumário'  # pt-br exclusiva (D-06) — en não passa -M toc-title ao pandoc (comportamento atual preservado)
+
+# superfície Swagger (templates/swagger-ui.html — sem consumidor nesta fase; consumida na Phase 3)
+swagger_title_suffix='Documentação da API'
+
+# superfície DokuWiki (scripts/to-dokuwiki.sh — consumida neste plano)
+dokuwiki_readme_heading='Instruções de Importação DokuWiki'
+dokuwiki_readme_steps='1. Copie o conteúdo de `data/` para o diretório `data/` da sua instância DokuWiki\n2. Acesse o Admin do DokuWiki → Gerenciador de Extensões\n3. Clique em "Load" para atualizar o índice de páginas\n4. Verifique as páginas sob o namespace specs'
+dokuwiki_readme_footer='Gerado pelo conjunto de skills md-to-wiki'

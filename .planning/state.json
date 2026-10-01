@@ -1,0 +1,33 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": null,
+  "phases": [
+    {
+      "number": "1",
+      "name": "Contrato & Golden Fixtures",
+      "status": "complete"
+    },
+    {
+      "number": "2",
+      "name": "Catálogo de Labels & Cadeia MkDocs/index",
+      "status": "complete"
+    },
+    {
+      "number": "3",
+      "name": "pt-br nas 5 Superfícies",
+      "status": "in_progress"
+    },
+    {
+      "number": "4",
+      "name": "Gêmeos PowerShell, Prosa & Release",
+      "status": "in_progress"
+    }
+  ],
+  "next": {
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step (verify)",
+    "reason": "Phase 04 of 4 · 50% · ready to verify"
+  },
+  "updated_at": "2026-09-30T19:04:53.773Z"
+}

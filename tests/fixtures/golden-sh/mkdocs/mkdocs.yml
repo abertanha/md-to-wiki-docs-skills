@@ -1,0 +1,29 @@
+site_name: TestProject — Specifications
+site_description: Auto-generated documentation from spec-driven development
+repo_url: 
+edit_uri: blob/main/
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+
+nav:
+  - Home: index.md
+  - Codebase:
+    - ARCHITECTURE: specs/codebase/ARCHITECTURE.md
+  - Features:
+    - Spec: specs/features/autenticação/spec.md
+    - Design: specs/features/login/design.md
+    - Spec: specs/features/login/spec.md
+  - Project:
+    - PROJECT: specs/project/PROJECT.md
+    - ROADMAP: specs/project/ROADMAP.md
+  - Quick:
+    - Spec: specs/quick/fix-nav/spec.md
+

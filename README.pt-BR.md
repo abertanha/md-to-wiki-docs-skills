@@ -6,6 +6,8 @@
 
 Converte arquivos markdown gerados por sessões _spec-driven_ (tlc-spec-driven, ai-harness-engineer, etc.) em documentação no formato que você escolher.
 
+Veja [CHANGELOG.md](./CHANGELOG.md) para as notas de release, incluindo o flip de default de `OUTPUT_LANG`.
+
 ## Formatos suportados
 
 | Formato | Descrição |
@@ -45,7 +47,11 @@ As chamadas seguem o padrão:
 $SCRIPT_RUNNER "$SKILL_DIR/scripts/<nome>$SCRIPT_EXT" <args_posicionais>
 ```
 
-Todos os scripts aceitam **argumentos posicionais idênticos** entre `.sh` e `.ps1` — sem flags, sem sintaxe específica de SO.
+Os scripts aceitam os mesmos argumentos posicionais entre `.sh` e `.ps1`, sem exceção: quatro deles (`generate-index`, `generate-mkdocs`, `to-pdf`, `to-dokuwiki`) recebem um posicional obrigatório `output_lang` (`en`, `pt-br`) no mesmo slot nos dois hosts. Sem flags, sem sintaxe específica de SO fora isso.
+
+### Idioma de saída
+
+`output_lang` aceita `en` ou `pt-br`. O **default é `pt-br`**; o valor é normalizado sem distinção de caso na entrada (`pt-BR` ≡ `pt-br`). Ele é atribuído no onboarding e transmitido pelo dispatch prompt — nunca lido de variável de ambiente, o mesmo mecanismo de `AUDIENCE`. Valor desconhecido interrompe a geração e lista os valores suportados; não há fallback silencioso. `en` preserva o comportamento anterior byte a byte. Veja [CONTEXT.md](./CONTEXT.md) para a política de idioma completa (projeção por consumidor, formato do catálogo, regras de fail-closed).
 
 ## Valores de público-alvo
 
@@ -64,6 +70,7 @@ md-to-wiki/
 ├── SKILL.md                  # Roteador fino (~80 linhas, ~600 tokens)
 ├── README.md                 # Documentação em inglês (principal)
 ├── README.pt-BR.md           # Este arquivo
+├── CHANGELOG.md              # Notas de release, milestone mais recente primeiro
 ├── LICENSE                   # MIT
 ├── scripts/                  # Scripts auxiliares (.sh + .ps1 emparelhados)
 │   ├── discover-sources.sh   # Escaneia diretório .specs/
@@ -78,10 +85,21 @@ md-to-wiki/
 │   ├── to-pdf.ps1            # (PowerShell)
 │   ├── to-dokuwiki.sh        # Converte para sintaxe DokuWiki
 │   ├── to-dokuwiki.ps1       # (PowerShell)
-│   └── prompt-tests.sh       # Testes de roteamento e execução (excluído do git)
+│   └── lib/
+│       └── catalog.ps1       # scripts/lib/catalog.ps1 — loader .ps1 compartilhado (parser, gate de allowlist, gravador sem BOM)
 ├── templates/                # Templates reutilizáveis
-│   ├── index.md              # Template da landing page
+│   ├── lang/
+│   │   ├── en.lang           # Catálogo EN de rótulos de chrome
+│   │   └── pt-br.lang        # Catálogo PT-BR de rótulos de chrome (default)
 │   └── swagger-ui.html       # Wrapper Swagger UI
+├── tests/                    # Harnesses de teste — o gate que um contribuidor roda (ver ## Testes)
+│   ├── regress.sh            # saída en/.sh/.ps1 reproduz os golden fixtures byte a byte
+│   ├── fail-closed.sh        # falha fechada por chave ausente, paridade de keyset, allowlist de idioma
+│   ├── no-mixed-output.sh    # zero saída mista de idioma nas 5 superfícies pt-br
+│   ├── ps1-contract.sh       # contrato dos gêmeos .ps1; gates estruturais rodam sem PowerShell
+│   ├── no-calques.sh         # denylist anti-calque na prosa e na saída pt-br
+│   ├── wiki-links.sh         # conversão de link do fluxo GitHub Wiki
+│   └── fixtures/             # golden-sh/, golden-ps1/, tree/, manifest.md
 └── agents/                   # Subagentes carregados sob demanda
     ├── onboarding.md         # Entrevista de descoberta + detecção de SO
     ├── format-mkdocs.md      # Geração de site MkDocs Material
@@ -145,6 +163,24 @@ Todos os scripts possuem versões `.sh` (Linux/macOS) e `.ps1` (Windows PowerShe
 - gh CLI funciona no Windows: `winget install GitHub.cli`
 - Pandoc no Windows: `winget install pandoc`
 - mkdocs funciona via `pip install mkdocs mkdocs-material`
+- Os gêmeos `.ps1` leem o mesmo catálogo de rótulos que os scripts `.sh` (`templates/lang/*.lang`), pelo loader compartilhado `scripts/lib/catalog.ps1`
+- Toda saída gravada pelos gêmeos `.ps1` é UTF-8 sem BOM
+- **Limitação conhecida:** Windows PowerShell 5.1 não foi verificado num host real — só PowerShell 7 (`pwsh`) em Linux/WSL. Veja [CHANGELOG.md](./CHANGELOG.md) para a lista completa de limitações conhecidas.
+
+## Testes
+
+Este repositório não tem CI — os harnesses abaixo são o gate que um contribuidor roda antes de abrir um PR. Cada um imprime uma linha `OK:`/`FAIL:`/`SKIPPED:` por afirmação e nunca passa em silêncio: um harness que não pode rodar imprime `SKIPPED:` com o motivo e encerra com status 3. **Golden fixture não se edita à mão — sob `tests/fixtures/golden-sh/` e `tests/fixtures/golden-ps1/`, `tests/regress.sh capture` é o único escritor.**
+
+| Comando | O que prova |
+|---------|-------------|
+| `bash tests/regress.sh` | A saída `en` (`.sh` e `.ps1`) reproduz os golden fixtures byte a byte, com máscara de data simétrica |
+| `bash tests/fail-closed.sh` | Falha fechada por chave ausente no catálogo, paridade de keyset entre os catálogos `en`/`pt-br`, o gate de allowlist de idioma e o passthrough de rótulo derivado |
+| `bash tests/no-mixed-output.sh` | Zero saída mista de idioma nas cinco superfícies pt-br |
+| `bash tests/ps1-contract.sh` | O contrato dos quatro gêmeos `.ps1` catalog-driven — os gates estruturais rodam mesmo sem PowerShell instalado |
+| `bash tests/no-calques.sh` | A denylist de calques na prosa e na saída pt-br |
+| `bash tests/wiki-links.sh` | A conversão de link do fluxo GitHub Wiki |
+
+Códigos de saída: `0` tudo verde, `1` alguma divergência ou gate reprovado, `3` uma ou mais pernas `SKIPPED` por dependência somente-de-dev ausente (`pwsh` ou `pandoc`).
 
 ## Exemplos de uso
 

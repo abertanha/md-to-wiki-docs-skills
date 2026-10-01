@@ -2,9 +2,8 @@
 set -euo pipefail
 
 REPO_URL="https://github.com/abertanha/md-to-wiki-docs-skills.git"
-SKILL_SUBDIR="md-to-wiki"
 CLONE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/md-to-wiki-repo"
-SKILL_DEST="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills/$SKILL_SUBDIR"
+SKILL_DEST="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills/md-to-wiki"
 
 echo "md-to-wiki installer"
 echo "===================="
@@ -19,7 +18,8 @@ echo "Cloning repo into $CLONE_DIR ..."
 git clone --depth 1 "$REPO_URL" "$CLONE_DIR"
 
 mkdir -p "$(dirname "$SKILL_DEST")"
-ln -sfn "$CLONE_DIR/$SKILL_SUBDIR" "$SKILL_DEST"
+# The skill lives at the repo root (SKILL.md is top-level) — symlink the clone itself
+ln -sfn "$CLONE_DIR" "$SKILL_DEST"
 
 echo "✓ Installed at $SKILL_DEST"
 echo ""

@@ -1,33 +1,38 @@
-# md-to-wiki — Thin Router (Phase 2)
+---
+name: md-to-wiki
+description: Turn a markdown spec tree into published documentation — MkDocs Material site, OpenAPI spec with Swagger UI, GitHub Wiki, DokuWiki, or PDF book, with optional GitHub issue/PR references and deployment. Use when the user wants to build a docs site, generate documentation, make a wiki, create an OpenAPI/Swagger spec, publish to a GitHub wiki, convert to DokuWiki, compile a PDF book, add issue references, or deploy the docs.
+---
+
+# md-to-wiki — Thin Router
 
 Turn markdown specification files into documentation sites.
 
-**Triggers:** "build wiki", "generate docs", "publish specs", "make a site", "wiki from markdown", "draw diagram", "flow chart", "architecture diagram", "state diagram", "sequence diagram"
+Shared vocabulary, script conventions, source taxonomy, and per-format dependencies live in [CONTEXT.md](./CONTEXT.md). Consult it before improvising any value or path.
 
 ## Phase Router
 
-Analyze the user's request to determine which path to take:
+Execute this block with the user's request as `$1`, then launch the agent the resulting `ROUTE` names:
 
 ```bash
 lower=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 case "$lower" in
-  *"not sure"*|*"help"*|*"recommend"*)     ROUTE="onboarding" ;;
-  *"html"*|*"site"*|*"mkdocs"*|*"material"*)  ROUTE="mkdocs" ;;
-  *"swagger"*|*"openapi"*|*"api"*)          ROUTE="swagger" ;;
-  *"github wiki"*|*"wiki tab"*)             ROUTE="github-wiki" ;;
-  *"dokuwiki"*|*"doku"*)                    ROUTE="dokuwiki" ;;
-  *"pdf"*|*"print"*|*"book"*)               ROUTE="pdf" ;;
-  *"reference"*|*"issue"*|*"pr"*|*"pull"*)  ROUTE="references" ;;
-  *"deploy"*|*"publish"*|*"go live"*)       ROUTE="deploy" ;;
-  *)                                          ROUTE="onboarding" ;;
+  *"not sure"*|*"help"*|*"recommend"*)   ROUTE="onboarding" ;;
+  *"github wiki"*|*"wiki tab"*)          ROUTE="github-wiki" ;;
+  *"dokuwiki"*|*"doku"*)                 ROUTE="dokuwiki" ;;
+  *"swagger"*|*"openapi"*|*"api spec"*|*"api doc"*|*"api reference"*)  ROUTE="swagger" ;;
+  *"mkdocs"*|*"material"*|*"docs site"*|*"documentation site"*|*"wiki"*|*"site"*|*"html"*)  ROUTE="mkdocs" ;;
+  *"pdf"*|*"print"*|*"book"*)            ROUTE="pdf" ;;
+  *"issue"*|*"pull request"*|*"pull-request"*|*"reference"*)  ROUTE="references" ;;
+  *"deploy"*|*"publish"*|*"go live"*)    ROUTE="deploy" ;;
+  *)                                     ROUTE="onboarding" ;;
 esac
 ```
 
-Then launch the appropriate agent:
+Arm order matters: the specific wiki formats (`github-wiki`, `dokuwiki`) precede the generic `*"wiki"*`/`*"site"*` arm so "github wiki" lands on the right route. The `references` arm matches distinctive phrases only — bare words like "project" or "process" no longer mis-route.
 
 | Route | Agent | Description |
 |-------|-------|-------------|
-| `onboarding` | [agents/onboarding.md](./agents/onboarding.md) | Interview user, detect OS, set up SKILL_DIR |
+| `onboarding` | [agents/onboarding.md](./agents/onboarding.md) | Interview user, resolve variables, set up run |
 | `mkdocs` | [agents/format-mkdocs.md](./agents/format-mkdocs.md) | Generate MkDocs Material site |
 | `swagger` | [agents/format-swagger.md](./agents/format-swagger.md) | Generate OpenAPI 3.0 + Swagger UI |
 | `github-wiki` | [agents/format-github-wiki.md](./agents/format-github-wiki.md) | Publish to GitHub Wiki |
@@ -38,42 +43,20 @@ Then launch the appropriate agent:
 
 ## Execution Flow
 
-1. **Onboarding** → Ask questions: project name, source dirs, audience (dev/stakeholder/general), desired format. Detect OS once, store `SKILL_DIR`, `SCRIPT_EXT`, `SCRIPT_RUNNER`.
-2. **Format generation** → Load the appropriate format agent. Use companion scripts from `scripts/` with `$SCRIPT_RUNNER`.
-3. **References** → If user wants issue/PR references, load [references.md](./agents/references.md).
-4. **Deployment** → After generation, load [deploy.md](./agents/deploy.md) to offer hosting.
-
-## Global Variables (set once during onboarding)
-
-- `SKILL_DIR` — resolved path to this skill folder
-- `SCRIPT_EXT` — `.sh` or `.ps1`
-- `SCRIPT_RUNNER` — `""` or `"powershell -File"`
-- `OS_TYPE` — `unix` or `windows`
-- `PROJECT_NAME` — from user
-- `SOURCES` — paths to spec files
-- `AUDIENCE` — `developer`, `stakeholder`, or `general`
+1. **Onboard** — launch [onboarding.md](./agents/onboarding.md). Done when every variable in [CONTEXT.md](./CONTEXT.md) has a confirmed value. If the user names multiple source roots, merge them first: `mkdir -p merged-specs && cp -r <root1>/* <root2>/* merged-specs/` — then `merged-specs/` is `SOURCES`.
+2. **Dispatch the format agent** — pass all variables in the dispatch prompt. Done when the agent satisfies its return contract.
+3. **References (optional)** — when issue/PR references were requested, launch [references.md](./agents/references.md).
+4. **Deploy (optional)** — launch [deploy.md](./agents/deploy.md) to offer hosting.
 
 ## Companion Scripts
 
-All accept positional args identically in `.sh` and `.ps1`:
+All are called positionally, identically in `.sh` and `.ps1` (see [CONTEXT.md](./CONTEXT.md) for the call convention):
 
-| Script | Purpose |
-|--------|---------|
-| `discover-sources` | Scans directories for spec/project/codebase/quick files |
-| `generate-mkdocs` | Creates full mkdocs.yml + page structure |
-| `generate-index` | Builds audience-appropriate landing page |
-| `to-dokuwiki` | Converts markdown → DokuWiki syntax |
-| `to-pdf` | Concatenates + converts to PDF via pandoc |
-| `fetch-issues` | Caches GitHub issue/PR metadata |
-
-## Multi-Directory Input
-
-Merge multiple source dirs into `merged-specs/` before running:
-
-```bash
-mkdir -p merged-specs && cp -r .specs/* docs/* merged-specs/
-```
-
-## Sharing
-
-Copy `md-to-wiki/` into colleague's `.config/opencode/skills/` or `.opencode/skills/`. Dependencies vary by format.
+| Script | Purpose | Positional signature (identical `.sh`/`.ps1`) |
+|--------|---------|------------------------------------------------|
+| `discover-sources` | Scan the specs tree; `summary` (default), `files`, or `json` output | `[dir] [summary\|files\|json]` |
+| `generate-mkdocs` | Build the MkDocs site skeleton (copies specs in, writes `mkdocs.yml` + nav) | `[project_name] [specs_dir] <output_lang>` |
+| `generate-index` | Build the audience-appropriate landing page | `<project_name> <audience> <output_lang> [feature_base_dirs...]` |
+| `to-dokuwiki` | Convert markdown → DokuWiki syntax, mirroring the input tree | `<output_dir> <output_lang> <file1.md> [file2.md ...]` |
+| `to-pdf` | Concatenate + convert to PDF via pandoc | `<output.pdf> <output_lang> <file1.md> [file2.md ...]` |
+| `fetch-issues` | Cache GitHub issue/PR metadata via `gh` (fallback `curl`) | `<owner/repo> <number> [number...]` |

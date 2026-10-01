@@ -1,98 +1,65 @@
 # PDF Builder — Subagent
 
-You are a specialized subagent for generating PDF documents from markdown spec files using Pandoc.
-
-## Your task
-
-Given a list of markdown files in dependency order, generate a single PDF book.
+Compile a markdown specs tree into a single PDF book. Variables and conventions: [CONTEXT.md](../CONTEXT.md).
 
 ## Prerequisites
 
-Check that Pandoc and a PDF engine are available. For convenience, use the companion script if available:
-
 ```bash
-SKILL_DIR=$(dirname "$(find ~/.config/opencode/skills/md-to-wiki -name SKILL.md | head -1)")
-if [ -f "$SKILL_DIR/scripts/to-pdf.sh" ]; then
-  "$SKILL_DIR/scripts/to-pdf.sh" specs-book.pdf <ordered_files>
-fi
+pandoc --version 2>/dev/null || echo "pandoc missing — install per CONTEXT.md §Dependencies"
 ```
 
-On Windows, use the PowerShell version:
-```powershell
-& "$env:SKILL_DIR/scripts/to-pdf.ps1" -Output specs-book.pdf -Files @(<ordered_files>)
-```
-
-```bash
-pandoc --version
-weasyprint --version  # preferred
-# or
-wkhtmltopdf --version  # fallback
-```
-
-If missing, inform the orchestrator of what needs installing.
+If any variable from CONTEXT.md is unset, ask the orchestrator before running.
 
 ## Steps
 
-### 1. Concatenate files in order
+### 1. Order the input
 
-Build a single markdown document following this structure:
+Build the ordered file list from the discovery output (`discover-sources ... files`), following this policy — spec/overview files before design/task files within each feature group, project docs before codebase docs, features last:
 
-1. Title page: project name + "— Specifications" + generation date
-2. Table of contents (pandoc handles this with `--toc`)
-3. Project docs: PROJECT.md, ROADMAP.md, STATE.md
-4. Codebase docs: ARCHITECTURE.md, STACK.md, CONVENTIONS.md, etc.
-5. Feature specs: grouped by feature (spec.md → design.md → tasks.md)
-6. Quick tasks (if included)
-7. References appendix (if provided)
+```
+project/*.md → codebase/*.md → features/<name>/spec.md,design.md,tasks.md → quick/<name>/*.md
+```
 
-File ordering within each group matters — always put spec/overview files before design/task files.
+Done when every discovered file is on the list.
+
+### 2. Build the PDF (companion script — primary path)
+
+```bash
+$SCRIPT_RUNNER "$SKILL_DIR/scripts/to-pdf$SCRIPT_EXT" specs-book.pdf "$OUTPUT_LANG" <ordered files...>
+```
+
+The script concatenates, warns about missing files instead of skipping silently, and tries the available engines in order. Done when it exits 0 and `specs-book.pdf` exists with non-zero size.
+
+`OUTPUT_LANG` comes from the dispatch prompt, never from the environment — same mechanism as `format-mkdocs.md`. An unknown or missing value stops the script with the list of supported languages (`en`, `pt-br`); there is no silent fallback.
+
+### 3. Manual fallback (script unreachable)
+
+Only when the script path fails, replicate it:
 
 ```bash
 {
-  echo "# <Project Name> — Specifications"
-  echo ""
-  echo "*Generated on $(date +%Y-%m-%d)*"
-  echo ""
-  echo "\\\\newpage"
-  echo ""
-  for f in <ordered file list>; do
-    [ -f "$f" ] || continue
-    cat "$f"
-    echo ""
-    echo "\\\\newpage"
-    echo ""
+  for f in <ordered files...>; do
+    [ -f "$f" ] || echo "WARNING: $f not found"    # warn, keep going
+    echo "## $(basename "$f" .md)"; echo; cat "$f"; echo; echo ---; echo
   done
 } > specs-book.md
+pandoc specs-book.md -o specs-book.pdf --toc --toc-depth=3 --pdf-engine=weasyprint \
+  || pandoc specs-book.md -o specs-book.pdf --toc --toc-depth=3 --pdf-engine=wkhtmltopdf
 ```
 
-### 2. Convert to PDF
+When `$OUTPUT_LANG` is `pt-br`, both pandoc invocations above also take
+`-M lang=pt-BR -M toc-title=Sumário`. With `en`, neither flag is passed. The
+fallback must replicate the script's locale projection, not diverge from it.
 
-Try WeasyPrint first (better output quality):
+Same completion criterion as step 2.
 
-```bash
-pandoc specs-book.md -f markdown --pdf-engine=weasyprint \
-  -o specs-book.pdf \
-  --metadata title="<Project Name> — Specifications" \
-  --toc --toc-depth=3
-```
+### 4. Intermediates
 
-If that fails, fall back to wkhtmltopdf:
-
-```bash
-pandoc specs-book.md -f markdown --pdf-engine=wkhtmltopdf \
-  -o specs-book.pdf \
-  --metadata title="<Project Name> — Specifications" \
-  --toc --toc-depth=3
-```
-
-### 3. Clean up optional intermediate
-
-Ask the orchestrator before deleting `specs-book.md`.
+`specs-book.md` is retained. Deletion follows the CONTEXT.md cleanup policy — ask the orchestrator first.
 
 ## Output
 
 Return to the orchestrator:
 - Path to `specs-book.pdf`
-- Page count (estimate from PDF metadata)
-- Any warnings (missing files, conversion issues)
-- If the PDF has rendering problems, suggest fixes
+- Page count from PDF metadata (`pdfinfo` when available; report unknown otherwise)
+- Warnings (missing files — echoed, engine fallbacks used)

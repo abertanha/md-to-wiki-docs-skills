@@ -1,0 +1,21 @@
+# Login: Spec
+
+The login feature lets a registered user authenticate and reach the
+dashboard.
+
+## Requirements
+
+- The login page accepts an email address and a password
+- Invalid credentials show an error and keep the user on the page
+- Successful authentication redirects to the dashboard
+
+## Acceptance criteria
+
+- A user with valid credentials reaches the dashboard in one step
+- A user with invalid credentials sees an error message
+- The login page renders without JavaScript enabled
+
+## Non-goals
+
+- Password recovery
+- Multi-factor authentication

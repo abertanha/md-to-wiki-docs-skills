@@ -1,0 +1,21 @@
+# Fix nav: Spec
+
+Quick task: the generated navigation dropped one section after a
+directory was renamed.
+
+## Problem
+
+Renaming a top-level directory under the specs tree removed its section
+from the generated navigation instead of relabeling it.
+
+## Fix
+
+- Derive navigation labels from the renamed directory
+- Regenerate the site skeleton after any directory rename
+- Assert that every top-level directory appears in the navigation
+
+## Acceptance criteria
+
+- After a rename, the navigation lists the section under the new label
+- No internal link is broken by the rename
+- Rerunning the generator produces the same navigation
