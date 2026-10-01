@@ -101,6 +101,10 @@ try {
     & $pandoc $book -f markdown --pdf-engine=weasyprint `
       -o $Output --metadata "title=$pdfTitle" `
       --toc --toc-depth=3 @PandocLangOpts 2>&1
+    if ($LASTEXITCODE -ne 0) {
+      Write-Error "pandoc (weasyprint) failed with exit code $LASTEXITCODE" 2>&1
+      exit 1
+    }
     Write-Output "PDF generated via weasyprint: $Output"
     $found = $true
   } else {
@@ -109,6 +113,10 @@ try {
       & $pandoc $book -f markdown --pdf-engine=wkhtmltopdf `
         -o $Output --metadata "title=$pdfTitle" `
         --toc --toc-depth=3 @PandocLangOpts 2>&1
+      if ($LASTEXITCODE -ne 0) {
+        Write-Error "pandoc (wkhtmltopdf) failed with exit code $LASTEXITCODE" 2>&1
+        exit 1
+      }
       Write-Output "PDF generated via wkhtmltopdf: $Output"
       $found = $true
     }

@@ -10,6 +10,8 @@ set -euo pipefail
 export LC_ALL="${LC_ALL:-C.UTF-8}"
 
 PROJECT_NAME="${1:-Project}"
+# Strip newlines: a CR/LF in PROJECT_NAME would inject a second YAML key (T-RETRO-02).
+PROJECT_NAME="$(printf '%s' "$PROJECT_NAME" | tr -d '\r\n')"
 SPECS_DIR="${2:-.specs}"
 OUTPUT_LANG="${3:?Usage: generate-mkdocs.sh [project_name] [specs_dir] <output_lang> — output_lang required, supported: en, pt-br}"
 OUTPUT_LANG=$(printf '%s' "$OUTPUT_LANG" | tr 'A-Z' 'a-z')
@@ -69,6 +71,8 @@ fi
 if [ -z "$repo_url" ] && [ -f ".specs/config.json" ]; then
   repo_url=$(jq -r '.repo_url // ""' .specs/config.json 2>/dev/null || echo "")
 fi
+# Strip newlines from repo_url — same YAML injection vector as PROJECT_NAME (T-RETRO-02).
+repo_url="$(printf '%s' "$repo_url" | tr -d '\r\n')"
 
 # Build nav: one section per top-level spec dir, files discovered recursively.
 # No `... | while read` here — pipe loops run in subshells and lose nav_entries.

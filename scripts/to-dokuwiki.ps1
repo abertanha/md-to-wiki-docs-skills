@@ -68,6 +68,10 @@ foreach ($file in $Files) {
   New-Item -ItemType Directory -Path $parent -Force | Out-Null
 
   pandoc "$file" -f markdown -t dokuwiki -o "$pagePath"
+  if ($LASTEXITCODE -ne 0) {
+    Write-Error "pandoc failed on '$file' with exit code $LASTEXITCODE" 2>&1
+    exit 1
+  }
   Write-Output "Converted $file -> $pagePath"
 }
 

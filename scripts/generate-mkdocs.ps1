@@ -6,6 +6,8 @@
 . (Join-Path $PSScriptRoot 'lib/catalog.ps1')
 
 $ProjectName = if ($args[0]) { $args[0] } else { "Project" }
+# Strip newlines: a CR/LF in $ProjectName would inject a second YAML key (T-RETRO-02).
+$ProjectName = ($ProjectName -replace '[\r\n]', ' ').Trim()
 $SpecsDir = if ($args[1]) { $args[1] } else { ".specs" }
 $OutputLangRaw = $args[2]
 
@@ -52,6 +54,8 @@ if ($gitRemote) {
 if (-not $repoUrl -and (Test-Path ".specs/config.json")) {
   $repoUrl = (Get-Content ".specs/config.json" -Raw | ConvertFrom-Json).repo_url
 }
+# Strip newlines from repo_url — same YAML injection vector as $ProjectName (T-RETRO-02).
+$repoUrl = ($repoUrl -replace '[\r\n]', '').Trim()
 
 $nav = @"
   - ${navHome}: index.md
